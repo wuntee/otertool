@@ -1,0 +1,6 @@
+Build instructions.
+
+The only time this was built was from Eclipse by right clicking the project and selecting 'Export...' 
+
+SWT:
+The GUI toolkit used is OS specific. You must change the SWT library that is associated with the project before building. This is done through right clicking the project and selecting Properties, then selecting the 'Build Path' option in the list. From there you can modify the 'swt.jar'. Change to the respective OS directory that exists in the 'lib' folder. 
