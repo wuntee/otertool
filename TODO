@@ -1,5 +1,21 @@
-- Install certificate reboots device
-- Require root shell, or do not error on FSdiff if you dont have root
+General:
 - deodex
-- load apks directly from phone
-- when loading apks from phone, auto discover frameworks
+- Android 4
+- Crash monitor
+
+Logcat
+- Configurable buffer
+- Figure out why its so slow
+
+FSDiff:
+- Require root shell, or do not error on FSdiff if you dont have root
+- Ability to monitor files to view specific diff
+
+Smali:
+- Handle resources
+- Handle AndroidManifest.xml
+- When loading apks from phone, auto discover frameworks
+
+Tools:
+- Install certificate reboots device
+- Fix persistent AVD
