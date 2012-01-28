@@ -1,0 +1,13 @@
+Oter tool - ToorCon edition
+
+The jar must be run in 32bit mode due to SWT library dependencies
+
+Any bugs or feature requests can be reported via email to mathew.rowley@gmail.com
+
+Running:
+Linux:
+java -d32 -jar oter-linux.jar 
+
+OSX:
+java -XstartOnFirstThread -d32 -jar oter-osx.jar
+
