@@ -45,4 +45,8 @@ public class OterStatics {
 	public static String getAaptCommand(){
 		return(getAndroidHome() + System.getProperty("file.separator") + "platform-tools" + System.getProperty("file.separator") + "aapt");
 	}
+	
+	public static String getConfigFileName(){
+		return(System.getProperty("user.dir") + System.getProperty("file.separator") + OterStatics.PROPERTY_FILE);
+	}
 }

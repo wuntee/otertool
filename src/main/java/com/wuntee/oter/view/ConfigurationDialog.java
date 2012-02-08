@@ -129,7 +129,7 @@ public class ConfigurationDialog extends Dialog {
 		btnSave.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				String configFile = System.getProperty("user.dir") + System.getProperty("file.separator") + OterStatics.PROPERTY_FILE;
+				String configFile = OterStatics.getConfigFileName();
 				Properties prop = new Properties();
 				
 				prop.setProperty(OterStatics.PROPERTY_ANDROID_HOME, text.getText());

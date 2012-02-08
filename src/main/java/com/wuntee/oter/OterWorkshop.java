@@ -22,7 +22,7 @@ public class OterWorkshop {
 
 	public static void loadProperties() throws IOException{
 		Properties prop = new Properties();
-		prop.load(ClassLoader.getSystemResourceAsStream(OterStatics.PROPERTY_FILE));
+		prop.load(new FileInputStream(OterStatics.getConfigFileName()));
 		System.setProperty(OterStatics.PROPERTY_ANDROID_HOME, prop.getProperty(OterStatics.PROPERTY_ANDROID_HOME));
 	}
 	

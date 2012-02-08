@@ -99,17 +99,26 @@
 			<artifactId>sdklib</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<!-- Uncomment to build for OSX -->
 		<dependency>
 			<groupId>org.eclipse.swt</groupId>
 			<artifactId>swt</artifactId>
 			<version>3.7-cocoa-macosx</version>
 		</dependency>
-		<!-- Uncomment this to build for Linux
+		<!-- Uncomment this to build for Linux 
 		<dependency>
 			<groupId>org.eclipse.swt</groupId>
 			<artifactId>swt</artifactId>
 			<version>3.7-gtk-linux</version>
 		</dependency>
 		-->
+		<!-- Uncomment this to build for Linux 64bit
+		<dependency>
+			<groupId>org.eclipse.swt</groupId>
+			<artifactId>swt</artifactId>
+			<version>3.7-gtk-linux-64</version>
+		</dependency>
+		-->
+		
 	</dependencies>
 </project>

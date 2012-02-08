@@ -150,14 +150,12 @@ public class Gui {
 	
 	public void loadConfig(){
 		// load config
-		if(OterStatics.getAndroidHome() == null){
-			try {
-				OterWorkshop.loadProperties();
-			} catch (Exception e) {
-				logger.error("Error loading config: ", e);
-				GuiWorkshop.messageError(shlOterTool,"Could not load a configuration file, please specify the configuration.");
-				new ConfigurationDialog(shlOterTool).open();
-			}
+		try{
+			OterWorkshop.loadProperties();
+		} catch (Exception e) {
+			logger.error("Error loading config: ", e);
+			GuiWorkshop.messageError(shlOterTool,"Could not load a configuration file, please specify the configuration.");
+			new ConfigurationDialog(shlOterTool).open();
 		}
 	}
 	
