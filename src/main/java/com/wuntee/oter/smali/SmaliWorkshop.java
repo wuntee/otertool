@@ -71,10 +71,10 @@ public class SmaliWorkshop {
 		return(ret);
 	}
 	
-	public static Map<String, File> getSmaliSource(File file, File destinationDirectory) throws IOException{
+	public static Map<String, File> getSmaliSource(File sourceSmaliOrDexFile, File destinationDirectory) throws IOException{
 		Map<String, File> ret = new HashMap<String, File>();
 		
-		DexFile dexFile = new DexFile(file);
+		DexFile dexFile = new DexFile(sourceSmaliOrDexFile);
 		
 		IndentingWriter idWriter;
 

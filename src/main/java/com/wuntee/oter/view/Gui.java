@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 import com.wuntee.oter.OterStatics;
 import com.wuntee.oter.OterWorkshop;
@@ -48,13 +49,14 @@ import com.wuntee.oter.adb.AdbWorkshop;
 import com.wuntee.oter.avd.AvdController;
 import com.wuntee.oter.command.BackgroundCommand;
 import com.wuntee.oter.fs.FsDiffController;
+import com.wuntee.oter.javatosmali.JavaToSmaliController;
 import com.wuntee.oter.logcat.LogCatController;
 import com.wuntee.oter.packagemanager.PackageBean;
 import com.wuntee.oter.packagemanager.PackageManagerController;
 import com.wuntee.oter.smali.SmaliController;
+import com.wuntee.oter.styler.*;
 import com.wuntee.oter.view.bean.BuildAndSignApkBean;
 import com.wuntee.oter.view.bean.CreateAvdBean;
-import org.eclipse.wb.swt.SWTResourceManager;
 
 public class Gui {
 
@@ -92,6 +94,10 @@ public class Gui {
 	private PackageManagerController	packageManagerController;
 	private StyledText 			packageManagerStyledText;
 	private Table 				packageManagerTable;
+	
+	private JavaToSmaliController	javaToSmaliController;
+	private StyledText				javaToSmaliSmaliStyledText;
+	private StyledText				javaToSmaliJavaStyledText;
 	
 	private CTabFolder tabFolder;
 		
@@ -141,21 +147,24 @@ public class Gui {
 	}
 
 	public void createControllers(){
-		logcatController = new LogCatController(this);
-		avdController = new AvdController(this);
-		fsDiffController = new FsDiffController(this);
-		smaliController = new SmaliController(this);
-		packageManagerController = new PackageManagerController(this);
+		//logcatController = new LogCatController(this);
+		//avdController = new AvdController(this);
+		//fsDiffController = new FsDiffController(this);
+		//smaliController = new SmaliController(this);
+		//packageManagerController = new PackageManagerController(this);
+		javaToSmaliController = new JavaToSmaliController(this);
 	}
 	
 	public void loadConfig(){
 		// load config
-		try{
-			OterWorkshop.loadProperties();
-		} catch (Exception e) {
-			logger.error("Error loading config: ", e);
-			GuiWorkshop.messageError(shlOterTool,"Could not load a configuration file, please specify the configuration.");
-			new ConfigurationDialog(shlOterTool).open();
+		if(OterStatics.getAndroidHome() == null){
+			try {
+				OterWorkshop.loadProperties();
+			} catch (Exception e) {
+				logger.error("Error loading config: ", e);
+				GuiWorkshop.messageError(shlOterTool,"Could not load a configuration file, please specify the configuration.");
+				new ConfigurationDialog(shlOterTool).open();
+			}
 		}
 	}
 	
@@ -352,6 +361,21 @@ public class Gui {
 			}
 		});
 		mntmBuild.setText("Build APK...");
+		
+		MenuItem mntmJavaToSmali = new MenuItem(menu, SWT.CASCADE);
+		mntmJavaToSmali.setText("Java to Smali");
+		
+		Menu menu_8 = new Menu(mntmJavaToSmali);
+		mntmJavaToSmali.setMenu(menu_8);
+		
+		MenuItem mntmCompile = new MenuItem(menu_8, SWT.NONE);
+		mntmCompile.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				javaToSmaliController.tryToCompileJava(javaToSmaliJavaStyledText, javaToSmaliSmaliStyledText);
+			}
+		});
+		mntmCompile.setText("Convert Java to Smali");
 		
 		MenuItem mntmTools = new MenuItem(menu, SWT.CASCADE);
 		mntmTools.setText("Tools");
@@ -868,6 +892,48 @@ public class Gui {
 		
 		StyledText styledText = new StyledText(smaliTabFolder, SWT.BORDER);
 		sashForm_1.setWeights(new int[] {1, 5});
+		
+		CTabItem tbtmJavaToSmali = new CTabItem(tabFolder, SWT.NONE);
+		tbtmJavaToSmali.setText("Java to Smali");
+		
+		Composite composite_13 = new Composite(tabFolder, SWT.NONE);
+		tbtmJavaToSmali.setControl(composite_13);
+		composite_13.setLayout(new FillLayout(SWT.HORIZONTAL));
+		
+		SashForm sashForm = new SashForm(composite_13, SWT.NONE);
+		
+		Composite composite_14 = new Composite(sashForm, SWT.NONE);
+		GridLayout gl_composite_14 = new GridLayout(1, false);
+		gl_composite_14.verticalSpacing = 0;
+		gl_composite_14.marginWidth = 0;
+		gl_composite_14.marginHeight = 0;
+		gl_composite_14.horizontalSpacing = 0;
+		composite_14.setLayout(gl_composite_14);
+		
+		Label lblJava = new Label(composite_14, SWT.NONE);
+		lblJava.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		lblJava.setText("Java");
+		
+		javaToSmaliJavaStyledText = new StyledText(composite_14, SWT.BORDER | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL);
+		javaToSmaliJavaStyledText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		//javaToSmaliJavaStyledText.addLineStyleListener(new JavaLineStyler());
+		
+		Composite composite_15 = new Composite(sashForm, SWT.NONE);
+		GridLayout gl_composite_15 = new GridLayout(1, false);
+		gl_composite_15.marginHeight = 0;
+		gl_composite_15.verticalSpacing = 0;
+		gl_composite_15.marginWidth = 0;
+		gl_composite_15.horizontalSpacing = 0;
+		composite_15.setLayout(gl_composite_15);
+		
+		Label lblSmali = new Label(composite_15, SWT.NONE);
+		lblSmali.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		lblSmali.setText("Smali");
+		
+		javaToSmaliSmaliStyledText = new StyledText(composite_15, SWT.BORDER | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL);
+		javaToSmaliSmaliStyledText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		javaToSmaliSmaliStyledText.addLineStyleListener(new SmaliLineStyler());
+		sashForm.setWeights(new int[] {1, 1});
 		
 		CTabItem tbtmPackageManager = new CTabItem(tabFolder, SWT.NONE);
 		tbtmPackageManager.setText("Package Manager");

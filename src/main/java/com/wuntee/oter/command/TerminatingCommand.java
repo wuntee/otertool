@@ -1,6 +1,7 @@
 package com.wuntee.oter.command;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
@@ -16,6 +17,16 @@ public class TerminatingCommand extends AbstractCommand {
 	protected List<String> output;
 	protected List<String> error;
 	private int returnCode;
+	private File workingDirectory;
+	
+	public TerminatingCommand(String[] command, File workingDirectory){
+		super(command);
+		this.workingDirectory = workingDirectory;
+	}
+
+	public TerminatingCommand(String command, File workingDirectory){
+		this(new String[]{command}, workingDirectory);
+	}
 
 	public TerminatingCommand(String[] command){
 		super(command);
@@ -28,7 +39,17 @@ public class TerminatingCommand extends AbstractCommand {
 	}
 	
 	public int execute() throws IOException, InterruptedException, CommandFailedException {
-		this.child = Runtime.getRuntime().exec(this.command);
+		if(workingDirectory != null){
+			String cmd = "";
+			for(String c: this.command){
+				cmd = cmd + c + " ";
+			}
+			logger.debug("Executing command: " + cmd + " in working directory:" + workingDirectory);
+
+			this.child = Runtime.getRuntime().exec(this.command, new String[]{}, workingDirectory);
+		} else {
+			this.child = Runtime.getRuntime().exec(this.command);
+		}
 
 		BufferedReader b = new BufferedReader(new InputStreamReader(this.child.getErrorStream()));
 		
