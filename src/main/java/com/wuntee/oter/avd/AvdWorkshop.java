@@ -11,16 +11,17 @@ import com.android.prefs.AndroidLocation.AndroidLocationException;
 import com.android.sdklib.IAndroidTarget;
 import com.android.sdklib.ISdkLog;
 import com.android.sdklib.SdkManager;
+import com.android.sdklib.internal.avd.AvdInfo;
 import com.android.sdklib.internal.avd.AvdManager;
-import com.android.sdklib.internal.avd.AvdManager.AvdInfo;
 import com.wuntee.oter.OterStatics;
 import com.wuntee.oter.command.BackgroundCommand;
+import com.wuntee.oter.exception.GenericException;
 import com.wuntee.oter.view.bean.CreateAvdBean;
 
 public class AvdWorkshop {
 	private static Logger logger = Logger.getLogger(AvdWorkshop.class);
 
-	public static void createAvd(CreateAvdBean bean) throws AndroidLocationException, IOException{
+	public static void createAvd(CreateAvdBean bean) throws AndroidLocationException, IOException, GenericException{
 
 		ISdkLog sdkLogger = AvdWorkshop.getAvdLogger();
 		
@@ -32,8 +33,18 @@ public class AvdWorkshop {
 		//newAvdInfo = avdManager.createAvd(avdFolder, avdName, target, skin, this.mSdkCommandLine.getParamSdCard(), hardwareConfig, removePrevious, this.mSdkCommandLine.getFlagSnapshot(), this.mSdkLog);
 		
 		IAndroidTarget target = getAndroidTargetFromString(sdkManager, bean.getTarget());
+
+		String abiType = target.getSystemImages()[0].getAbiType(); //ABI = Android Base Image ?
 		
-		AvdInfo ret = avdManager.createAvd(avdFolder, bean.getName(), target, null, null, null, false, false, sdkLogger);
+		// avdManager.           createAvd(avdFolder, avdName,     avdTarget, ABI, skin, sdCard, hadwareConfig, snapshot, force, false, logger)
+		//AvdInfo ret = avdManager.createAvd(avdFolder, bean.getName(),           target,        null,        null,                     null,        false,        false, sdkLogger);
+		//                       createAvd(File arg0, String arg1, IAndroidTarget arg2, String arg3, String arg4, Map<String, String> arg5, boolean arg6, boolean arg7, ISdkLog arg8)
+		AvdInfo ret = avdManager.createAvd(avdFolder, bean.getName(), target, abiType, null, null, null, false, false, false, sdkLogger);
+		if(ret == null){
+			logger.error("There was an error createing AVD, the manager returned a null info object.");
+			throw new GenericException("Could not create AVD for an unknown reason.");
+		}
+		
 		if(bean.isPersistant() == true){
 			makeAvdPersistant(ret);
 		}
@@ -55,13 +66,15 @@ public class AvdWorkshop {
 	
 	public static void makeAvdPersistant(AvdInfo info) throws IOException{
 		logger.debug("Makeing AVD: " + info.getName() + " persistant.");
-		String avdPath = info.getPath();
+		String avdPath = info.getDataFolderPath();
 		if(info.getTarget().isPlatform() == false){
 			String secondLocation = info.getTarget().getParent().getLocation() + "images" + System.getProperty("file.separator");
 			copyDirContentsToDir(secondLocation, avdPath);
 		}
 		String firstLocation = info.getTarget().getLocation() + "images" + System.getProperty("file.separator");
-		copyDirContentsToDir(firstLocation, avdPath);		
+		copyDirContentsToDir(firstLocation, avdPath);	
+		File sysImg = new File(avdPath + System.getProperty("file.separator") + "system.img");
+		sysImg.renameTo(new File(avdPath + System.getProperty("file.separator") + "system-qemu.img"));
 	}
 	
 	private static void copyDirContentsToDir(String firstDir, String destDir) throws IOException{

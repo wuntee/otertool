@@ -147,11 +147,11 @@ public class Gui {
 
 	public void createControllers(){
 		logcatController = new LogCatController(this);
-		//avdController = new AvdController(this);
-		//fsDiffController = new FsDiffController(this);
-		//smaliController = new SmaliController(this);
-		//packageManagerController = new PackageManagerController(this);
-		//javaToSmaliController = new JavaToSmaliController(this);
+		avdController = new AvdController(this);
+		fsDiffController = new FsDiffController(this);
+		smaliController = new SmaliController(this);
+		packageManagerController = new PackageManagerController(this);
+		javaToSmaliController = new JavaToSmaliController(this);
 	}
 	
 	public void loadConfig(){

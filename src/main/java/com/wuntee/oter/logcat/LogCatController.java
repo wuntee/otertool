@@ -13,6 +13,8 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
+import com.wuntee.oter.OterStatics;
+import com.wuntee.oter.OterWorkshop;
 import com.wuntee.oter.exception.ParseException;
 import com.wuntee.oter.view.Gui;
 import com.wuntee.oter.view.GuiWorkshop;
@@ -24,10 +26,18 @@ public class LogCatController {
 	private Gui gui;
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss:S");
 	private List<LogCatBean> logcatCurrent;
+	private int maxBufferSize;
+	
+	public static int DEFAULT_MAX_LINES = 10000;
 
 	public LogCatController(Gui gui){
 		this.gui = gui;
 		logcatCurrent = new LinkedList<LogCatBean>();
+		try{
+			maxBufferSize = Integer.parseInt(OterWorkshop.getProperty(OterStatics.PROPERTY_LOGCAT_MAXLINES));
+		} catch (Exception e) {
+			maxBufferSize = DEFAULT_MAX_LINES;
+		}
 	}
 	
 	public void copy(){
@@ -48,6 +58,12 @@ public class LogCatController {
 	public void start() throws Exception{
 		if(logcat != null && logcat.isRunning())
 			logcat.close();
+
+		try{
+			maxBufferSize = Integer.parseInt(OterWorkshop.getProperty(OterStatics.PROPERTY_LOGCAT_MAXLINES));
+		} catch (Exception e) {
+			maxBufferSize = DEFAULT_MAX_LINES;
+		}
 
 		logcat = new LogCatCommand();
 		
@@ -161,9 +177,17 @@ public class LogCatController {
 			this.l = l;
 		}
 		public void run() {
+			if(logcatCurrent.size() >= maxBufferSize){
+				logger.info("Max buffer reached, removing first index");
+				logcatCurrent.remove(0);
+			}
 			logcatCurrent.add(l);
 			if(matchesFilter(l)){
 				Table logCatTable = gui.getLogcatTable();
+				if(logCatTable.getItemCount() >= maxBufferSize){
+					logger.info("Max buffer reached in table, removing first index");
+					logCatTable.remove(logCatTable.getTopIndex());
+				}
 				if(l.getLevel() == LogCatLevelEnum.ERROR && gui.getLogcatCheckError().getSelection() == true){
 					TableItem tableItem = new TableItem(logCatTable, SWT.NONE);
 					tableItem.setText(new String[] {dateFormat.format(l.getDate()), l.getLevel().toString(), l.getClazz(), String.valueOf(l.getPid()), l.getMessage()});

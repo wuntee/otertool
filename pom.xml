@@ -94,11 +94,6 @@
 			<artifactId>baksmali</artifactId>
 			<version>1.2.6</version>
 		</dependency>
-		<dependency>
-			<groupId>com.android.sdklib</groupId>
-			<artifactId>sdklib</artifactId>
-			<version>1.0</version>
-		</dependency>
 		<!-- Uncomment to build for OSX -->
 		<dependency>
 			<groupId>org.eclipse.swt</groupId>
@@ -124,6 +119,17 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.android</groupId>
+			<artifactId>common</artifactId>
+			<version>r16</version>
+		</dependency>
+		<dependency>
+			<groupId>com.android.sdklib</groupId>
+			<artifactId>sdklib</artifactId>
+			<version>r16</version>
+			<type>jar</type>
 		</dependency>
 	</dependencies>
 </project>
