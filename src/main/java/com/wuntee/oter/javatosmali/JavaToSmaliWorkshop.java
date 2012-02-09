@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.wuntee.oter.OterStatics;
@@ -53,7 +54,7 @@ public class JavaToSmaliWorkshop {
 		return(null);
 	}
 	
-	public static String javaSourceToSmali(String javaSourceText) throws Exception{
+	public static String javaSourceToSmali(String javaSourceText, String classpathString) throws Exception{
 		File javaSource;
 		String className;
 		String classFile;
@@ -70,7 +71,12 @@ public class JavaToSmaliWorkshop {
 		}
 
 		logger.debug("Compiling java source.");
-		TerminatingCommand javacCmd = new TerminatingCommand(new String[]{"javac", javaSource.getAbsolutePath()});
+		TerminatingCommand javacCmd = null;
+		if(classpathString != null){
+			javacCmd = new TerminatingCommand(new String[]{"javac", "-classpath", classpathString, javaSource.getAbsolutePath()});
+		} else {
+			javacCmd = new TerminatingCommand(new String[]{"javac", javaSource.getAbsolutePath()});
+		}
 		javacCmd.execute();
 		
 		try{

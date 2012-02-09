@@ -146,24 +146,19 @@ public class Gui {
 	}
 
 	public void createControllers(){
-		//logcatController = new LogCatController(this);
+		logcatController = new LogCatController(this);
 		//avdController = new AvdController(this);
 		//fsDiffController = new FsDiffController(this);
 		//smaliController = new SmaliController(this);
 		//packageManagerController = new PackageManagerController(this);
-		javaToSmaliController = new JavaToSmaliController(this);
+		//javaToSmaliController = new JavaToSmaliController(this);
 	}
 	
 	public void loadConfig(){
 		// load config
 		if(OterStatics.getAndroidHome() == null){
-			try {
-				OterWorkshop.loadProperties();
-			} catch (Exception e) {
-				logger.error("Error loading config: ", e);
-				GuiWorkshop.messageError(shlOterTool,"Could not load a configuration file, please specify the configuration.");
-				new ConfigurationDialog(shlOterTool).open();
-			}
+			GuiWorkshop.messageError(shlOterTool,"Could not load a configuration file, please specify the configuration.");
+			new ConfigurationDialog(shlOterTool).open();
 		}
 	}
 	
@@ -386,6 +381,21 @@ public class Gui {
 			}
 		});
 		mntmConfigureClasspath.setText("Configure classpath");
+		
+		MenuItem mntmAddAndroidjarTo = new MenuItem(menu_8, SWT.NONE);
+		mntmAddAndroidjarTo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				try{
+					OterWorkshop.addAndroidjarToClasspath();
+				} catch(Exception e){
+					GuiWorkshop.messageError(shlOterTool, e.getMessage());
+					return;
+				}
+				GuiWorkshop.messageDialog(shlOterTool, "Sucessfull added android.jar to classpath. View File->Configure to view changes.");
+			}
+		});
+		mntmAddAndroidjarTo.setText("Add android.jar to classpath");
 		
 		MenuItem mntmTools = new MenuItem(menu, SWT.CASCADE);
 		mntmTools.setText("Tools");
@@ -926,7 +936,7 @@ public class Gui {
 		
 		javaToSmaliJavaStyledText = new StyledText(composite_14, SWT.BORDER | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL);
 		javaToSmaliJavaStyledText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		javaToSmaliJavaStyledText.setText("public class OterTool {\n\n	// Youll need to include everything that would exist in a full \n	// java source file. I typically just write a class in Eclipse\n	// and allow it to handle all imports, and paste it here.\n	public static void main(String[] args) {\n		// Placing a method here, with its arguments will show you \n		// the calling convention, and allow you to easily paste\n		// the code in the smali class\n		oterToolMethod(\"calling argument\");\n	}\n	\n	public static void oterToolMethod(String arg){\n		// You can paste this portion of the smali code directly in\n		// the end of the original package, and call it from everywhere\n		System.out.println(arg);\n	}\n}");
+		javaToSmaliJavaStyledText.setText("import android.util.Log;\n\npublic class OterTool {\n\n	// Youll need to include everything that would exist in a full \n	// java source file. I typically just write a class in Eclipse\n	// and allow it to handle all imports, and paste it here.\n\n	// You will also need to include the android.jar file in the \n	// classpath to use thing like 'Log'. This can be configured\n	// through the configuration dialog (File->Configure) or you\n	// can attempt to have otertool attempt to automatically add it\n	// for you through Java to Smali->Add android.jar to classpath\n\n	public static void main(String[] args) {\n		// Placing a method here, with its arguments will show you \n		// the calling convention, and allow you to easily paste\n		// the code in the smali class\n		oterToolMethod(\"calling argument\");\n		Log.e(\"Tag\", \"Test\");\n	}\n	\n	public static void oterToolMethod(String arg){\n		// You can paste this portion of the smali code directly in\n		// the end of the original package, and call it from everywhere\n		System.out.println(arg);\n	}\n}");
 		//javaToSmaliJavaStyledText.addLineStyleListener(new JavaLineStyler());
 		
 		Composite composite_15 = new Composite(sashForm, SWT.NONE);

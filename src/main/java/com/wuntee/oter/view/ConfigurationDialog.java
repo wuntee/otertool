@@ -20,14 +20,17 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.wuntee.oter.OterStatics;
+import com.wuntee.oter.OterWorkshop;
+import org.eclipse.swt.graphics.Point;
 
 public class ConfigurationDialog extends Dialog {
 	private static Logger logger = Logger.getLogger(ConfigurationDialog.class);
 
 	protected Object result;
 	protected Shell shell;
-	private Text text;
+	private Text androidHomeText;
 	private List javaToSmaliClasspath;
+	private Text maxLogcatLinesText;
 
 	public ConfigurationDialog(Shell parent) {
 		this(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -49,6 +52,7 @@ public class ConfigurationDialog extends Dialog {
 	 */
 	public Object open() {
 		createContents();
+		loadConfig();
 		shell.open();
 		shell.layout();
 		Display display = getParent().getDisplay();
@@ -59,12 +63,32 @@ public class ConfigurationDialog extends Dialog {
 		}
 		return result;
 	}
+	
+	private void loadConfig(){
+		// Load Home
+		androidHomeText.setText(OterWorkshop.getProperty(OterStatics.PROPERTY_ANDROID_HOME) == null ? "" : OterWorkshop.getProperty(OterStatics.PROPERTY_ANDROID_HOME));
+		
+		// Load locat lines
+		maxLogcatLinesText.setText(OterWorkshop.getProperty(OterStatics.PROPERTY_LOGCAT_MAXLINES));
+		
+		// Load classpath
+		String javaToSmaliClasspathString = OterWorkshop.getProperty(OterStatics.PROPERTY_JAVATOSMALI_CLASSPATH);
+		if(javaToSmaliClasspathString != null){
+			for(String s : javaToSmaliClasspathString.split(":")){
+				if(!s.trim().equals("")){
+					javaToSmaliClasspath.add(s);
+				}
+			}
+		}
+
+	}
 
 	/**
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
-		shell = new Shell(getParent(), getStyle());
+		shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE);
+		shell.setMinimumSize(new Point(450, 286));
 		shell.setSize(450, 286);
 		shell.setText("Configuration");
 		GridLayout gl_shell = new GridLayout(1, false);
@@ -78,14 +102,23 @@ public class ConfigurationDialog extends Dialog {
 		gl_shell.horizontalSpacing = 0;
 		shell.setLayout(gl_shell);
 		
-		Label lblAndroidHome = new Label(shell, SWT.NONE);
-		lblAndroidHome.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		lblAndroidHome.setBounds(0, 0, 59, 14);
+		Composite composite_4 = new Composite(shell, SWT.NONE);
+		composite_4.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		GridLayout gl_composite_4 = new GridLayout(1, false);
+		gl_composite_4.verticalSpacing = 0;
+		gl_composite_4.marginWidth = 0;
+		gl_composite_4.marginHeight = 0;
+		gl_composite_4.horizontalSpacing = 0;
+		composite_4.setLayout(gl_composite_4);
+		
+		Label lblAndroidHome = new Label(composite_4, SWT.SHADOW_NONE);
+		lblAndroidHome.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		lblAndroidHome.setBounds(0, 0, 124, 14);
 		lblAndroidHome.setText("Android SDK Location:");
 		
-		Composite composite = new Composite(shell, SWT.NONE);
-		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		composite.setBounds(0, 0, 64, 64);
+		Composite composite = new Composite(composite_4, SWT.NONE);
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
+		composite.setBounds(0, 0, 440, 28);
 		GridLayout gl_composite = new GridLayout(2, false);
 		gl_composite.horizontalSpacing = 0;
 		gl_composite.marginHeight = 0;
@@ -93,10 +126,9 @@ public class ConfigurationDialog extends Dialog {
 		gl_composite.verticalSpacing = 0;
 		composite.setLayout(gl_composite);
 		
-		text = new Text(composite, SWT.BORDER);
-		text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		text.setBounds(0, 0, 64, 19);
-		text.setText(OterStatics.getAndroidHome() == null ? "" : OterStatics.getAndroidHome());
+		androidHomeText = new Text(composite, SWT.BORDER);
+		androidHomeText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		androidHomeText.setBounds(0, 0, 64, 19);
 		
 		Button btnNewButton = new Button(composite, SWT.NONE);
 		btnNewButton.addSelectionListener(new SelectionAdapter() {
@@ -104,7 +136,7 @@ public class ConfigurationDialog extends Dialog {
 			public void widgetSelected(SelectionEvent arg0) {
 				String dir = GuiWorkshop.selectDirectory(shell);
 				if(dir != null){
-					text.setText(dir);
+					androidHomeText.setText(dir);
 				}
 			}
 		});
@@ -112,10 +144,25 @@ public class ConfigurationDialog extends Dialog {
 		btnNewButton.setBounds(0, 0, 94, 30);
 		btnNewButton.setText("Search");
 		
-		Button btnDebugLogging = new Button(composite, SWT.CHECK);
-		btnDebugLogging.setBounds(0, 0, 93, 18);
-		btnDebugLogging.setText("Debug logging");
-		new Label(composite, SWT.NONE);
+		Composite composite_5 = new Composite(shell, SWT.NONE);
+		GridLayout gl_composite_5 = new GridLayout(2, false);
+		gl_composite_5.verticalSpacing = 0;
+		gl_composite_5.marginWidth = 0;
+		gl_composite_5.horizontalSpacing = 0;
+		gl_composite_5.marginHeight = 0;
+		composite_5.setLayout(gl_composite_5);
+		composite_5.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		
+		Label lblMaxLogcatLines = new Label(composite_5, SWT.NONE);
+		lblMaxLogcatLines.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		lblMaxLogcatLines.setBounds(0, 0, 59, 14);
+		lblMaxLogcatLines.setText("Max LogCat lines:");
+		
+		maxLogcatLinesText = new Text(composite_5, SWT.BORDER);
+		GridData gd_maxLogcatLinesText = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_maxLogcatLinesText.widthHint = 100;
+		maxLogcatLinesText.setLayoutData(gd_maxLogcatLinesText);
+		maxLogcatLinesText.setBounds(0, 0, 64, 19);
 		
 		Composite composite_2 = new Composite(shell, SWT.NONE);
 		GridLayout gl_composite_2 = new GridLayout(1, false);
@@ -131,16 +178,10 @@ public class ConfigurationDialog extends Dialog {
 		lblJavaToSmali.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		lblJavaToSmali.setText("Java to Smali Classpath:");
 		
-		javaToSmaliClasspath = new List(composite_2, SWT.BORDER);
+		javaToSmaliClasspath = new List(composite_2, SWT.BORDER | SWT.V_SCROLL);
 		GridData gd_javaToSmaliClasspath = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_javaToSmaliClasspath.heightHint = 100;
 		javaToSmaliClasspath.setLayoutData(gd_javaToSmaliClasspath);
-		String javaToSmaliClasspathString = OterStatics.getJavaToSmaliClasspath();
-		if(javaToSmaliClasspathString != null){
-			for(String s : javaToSmaliClasspathString.split(":")){
-				javaToSmaliClasspath.add(s);
-			}
-		}
 		
 		Composite composite_3 = new Composite(composite_2, SWT.NONE);
 		GridLayout gl_composite_3 = new GridLayout(2, false);
@@ -156,7 +197,9 @@ public class ConfigurationDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				String fileName = GuiWorkshop.selectFile(shell, new String[]{"*.jar"});
-				javaToSmaliClasspath.add(fileName);
+				if(fileName != null){
+					javaToSmaliClasspath.add(fileName);
+				}
 			}
 		});
 		btnAdd.setText("Add");
@@ -188,11 +231,13 @@ public class ConfigurationDialog extends Dialog {
 				String configFile = OterStatics.getConfigFileName();
 				Properties prop = new Properties();
 				
-				prop.setProperty(OterStatics.PROPERTY_ANDROID_HOME, text.getText());
+				prop.setProperty(OterStatics.PROPERTY_ANDROID_HOME, androidHomeText.getText());
 				
 				String cp = StringUtils.join(javaToSmaliClasspath.getItems(), ":");
 				prop.setProperty(OterStatics.PROPERTY_JAVATOSMALI_CLASSPATH, cp);
-				System.setProperty(OterStatics.PROPERTY_ANDROID_HOME, text.getText());
+				
+				String max = maxLogcatLinesText.getText();
+				prop.setProperty(OterStatics.PROPERTY_LOGCAT_MAXLINES, max);
 				
 				try {
 					prop.store(new FileOutputStream(configFile), null);

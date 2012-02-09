@@ -1,9 +1,5 @@
 package com.wuntee.oter;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
 
 public class OterStatics {
 	public static final String META_INF = "META-INF";
@@ -11,6 +7,7 @@ public class OterStatics {
 	public static String PROPERTY_FILE = "config.properties";
 	public static String PROPERTY_ADB_ARGUMENTS = "adb.arguments";
 	public static String PROPERTY_ANDROID_HOME = "android.home";
+	public static String PROPERTY_LOGCAT_MAXLINES = "logcat.maxlines";
 	public static String PROPERTY_JAVATOSMALI_CLASSPATH = "javatosmali.classpath";
 	
 	public static String ICON_FILE = "/file_obj.gif";
@@ -33,22 +30,7 @@ public class OterStatics {
 	public static String SOME_STRING = "wuntee";
 	
 	public static String getAndroidHome(){
-		return(System.getProperty(PROPERTY_ANDROID_HOME));
-	}
-	
-	public static Properties getOterConfig() throws FileNotFoundException, IOException{
-		Properties prop = new Properties();
-		prop.load(new FileInputStream(getConfigFileName()));
-		return(prop);
-	}
-	
-	public static String getJavaToSmaliClasspath(){
-		try{
-			String ret = getOterConfig().getProperty(PROPERTY_JAVATOSMALI_CLASSPATH);
-			return(ret);
-		} catch(Exception e) {
-			return(null);
-		}
+		return(OterWorkshop.getProperty(PROPERTY_ANDROID_HOME));
 	}
 	
 	public static String getEmulatorCommand(){

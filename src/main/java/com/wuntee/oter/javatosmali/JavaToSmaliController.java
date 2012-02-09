@@ -3,6 +3,8 @@ package com.wuntee.oter.javatosmali;
 import org.apache.log4j.Logger;
 import org.eclipse.swt.custom.StyledText;
 
+import com.wuntee.oter.OterStatics;
+import com.wuntee.oter.OterWorkshop;
 import com.wuntee.oter.exception.CommandFailedException;
 import com.wuntee.oter.styler.SmaliLineStyler;
 import com.wuntee.oter.view.Gui;
@@ -30,7 +32,7 @@ public class JavaToSmaliController {
 		public void run() {
 			smaliStyledText.setText("");
 			try {
-				smaliStyledText.setText(JavaToSmaliWorkshop.javaSourceToSmali(javaStyledText.getText()));
+				smaliStyledText.setText(JavaToSmaliWorkshop.javaSourceToSmali(javaStyledText.getText(), OterWorkshop.getProperty(OterStatics.PROPERTY_JAVATOSMALI_CLASSPATH)));
 				gui.clearStatus();
 			} catch(CommandFailedException e){
 				smaliStyledText.setText(e.getMessage());
