@@ -99,8 +99,7 @@ public class Gui {
 	private StyledText				javaToSmaliSmaliStyledText;
 	private StyledText				javaToSmaliJavaStyledText;
 	
-	private CTabFolder tabFolder;
-		
+	private CTabFolder tabFolder;	
 
 	private static Logger logger = Logger.getLogger(Gui.class);
 	
@@ -376,6 +375,17 @@ public class Gui {
 			}
 		});
 		mntmCompile.setText("Convert Java to Smali");
+		
+		new MenuItem(menu_8, SWT.SEPARATOR);
+		
+		MenuItem mntmConfigureClasspath = new MenuItem(menu_8, SWT.NONE);
+		mntmConfigureClasspath.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				Object ret = new ConfigurationDialog(shlOterTool).open();
+			}
+		});
+		mntmConfigureClasspath.setText("Configure classpath");
 		
 		MenuItem mntmTools = new MenuItem(menu, SWT.CASCADE);
 		mntmTools.setText("Tools");
@@ -916,6 +926,7 @@ public class Gui {
 		
 		javaToSmaliJavaStyledText = new StyledText(composite_14, SWT.BORDER | SWT.WRAP | SWT.H_SCROLL | SWT.V_SCROLL);
 		javaToSmaliJavaStyledText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		javaToSmaliJavaStyledText.setText("public class OterTool {\n\n	// Youll need to include everything that would exist in a full \n	// java source file. I typically just write a class in Eclipse\n	// and allow it to handle all imports, and paste it here.\n	public static void main(String[] args) {\n		// Placing a method here, with its arguments will show you \n		// the calling convention, and allow you to easily paste\n		// the code in the smali class\n		oterToolMethod(\"calling argument\");\n	}\n	\n	public static void oterToolMethod(String arg){\n		// You can paste this portion of the smali code directly in\n		// the end of the original package, and call it from everywhere\n		System.out.println(arg);\n	}\n}");
 		//javaToSmaliJavaStyledText.addLineStyleListener(new JavaLineStyler());
 		
 		Composite composite_15 = new Composite(sashForm, SWT.NONE);
