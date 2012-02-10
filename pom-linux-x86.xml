@@ -97,7 +97,7 @@
 		<dependency>
 			<groupId>com.android.sdklib</groupId>
 			<artifactId>sdklib</artifactId>
-			<version>1.0</version>
+			<version>r16</version>
 		</dependency>
 		<!-- Uncomment to build for OSX 
 		<dependency>

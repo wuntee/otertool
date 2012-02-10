@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.android.prefs.AndroidLocation.AndroidLocationException;
+import com.android.sdklib.internal.avd.AvdInfo;
 import com.wuntee.oter.view.Gui;
 import com.wuntee.oter.view.GuiWorkshop;
 import com.wuntee.oter.view.bean.CreateAvdBean;
@@ -20,9 +21,13 @@ public class AvdController {
 	
 	public void createAvd(CreateAvdBean bean){
 		try {
-			AvdWorkshop.createAvd(bean);
+			AvdInfo avd = AvdWorkshop.createAvd(bean);
 			if(bean.isLaunch()){
-				AvdWorkshop.launchAvd(bean.getName());
+				if(bean.isPersistant()){
+					AvdWorkshop.launchPersistantAvd(avd);
+				} else {
+					AvdWorkshop.launchAvd(avd);
+				}
 			} else {
 				GuiWorkshop.messageDialog(gui.getShell(), "The AVD '" + bean.getName() + "' has sucessfully been created!");
 			}

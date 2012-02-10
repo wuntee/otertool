@@ -10,6 +10,7 @@ import com.android.prefs.AndroidLocation;
 import com.android.prefs.AndroidLocation.AndroidLocationException;
 import com.android.sdklib.IAndroidTarget;
 import com.android.sdklib.ISdkLog;
+import com.android.sdklib.ISystemImage;
 import com.android.sdklib.SdkManager;
 import com.android.sdklib.internal.avd.AvdInfo;
 import com.android.sdklib.internal.avd.AvdManager;
@@ -21,7 +22,7 @@ import com.wuntee.oter.view.bean.CreateAvdBean;
 public class AvdWorkshop {
 	private static Logger logger = Logger.getLogger(AvdWorkshop.class);
 
-	public static void createAvd(CreateAvdBean bean) throws AndroidLocationException, IOException, GenericException{
+	public static AvdInfo createAvd(CreateAvdBean bean) throws AndroidLocationException, IOException, GenericException{
 
 		ISdkLog sdkLogger = AvdWorkshop.getAvdLogger();
 		
@@ -36,10 +37,12 @@ public class AvdWorkshop {
 
 		String abiType = target.getSystemImages()[0].getAbiType(); //ABI = Android Base Image ?
 		
+		// /Applications/android-sdk-macosx/system-images/android-15/armeabi-v7a//system.img
 		// avdManager.           createAvd(avdFolder, avdName,     avdTarget, ABI, skin, sdCard, hadwareConfig, snapshot, force, false, logger)
 		//AvdInfo ret = avdManager.createAvd(avdFolder, bean.getName(),           target,        null,        null,                     null,        false,        false, sdkLogger);
 		//                       createAvd(File arg0, String arg1, IAndroidTarget arg2, String arg3, String arg4, Map<String, String> arg5, boolean arg6, boolean arg7, ISdkLog arg8)
 		AvdInfo ret = avdManager.createAvd(avdFolder, bean.getName(), target, abiType, null, null, null, false, false, false, sdkLogger);
+		
 		if(ret == null){
 			logger.error("There was an error createing AVD, the manager returned a null info object.");
 			throw new GenericException("Could not create AVD for an unknown reason.");
@@ -48,6 +51,8 @@ public class AvdWorkshop {
 		if(bean.isPersistant() == true){
 			makeAvdPersistant(ret);
 		}
+		
+		return(ret);
 	}
 	
 	public static boolean isAvdExist(String avd) throws AndroidLocationException{
@@ -66,15 +71,30 @@ public class AvdWorkshop {
 	
 	public static void makeAvdPersistant(AvdInfo info) throws IOException{
 		logger.debug("Makeing AVD: " + info.getName() + " persistant.");
-		String avdPath = info.getDataFolderPath();
+		File avdPath = new File(info.getDataFolderPath());
+				
+		ISystemImage[] sysImages = null;
+				
+		// If target is a platform, copy parents system images first
 		if(info.getTarget().isPlatform() == false){
-			String secondLocation = info.getTarget().getParent().getLocation() + "images" + System.getProperty("file.separator");
-			copyDirContentsToDir(secondLocation, avdPath);
+			for(ISystemImage iSysImg : info.getTarget().getParent().getSystemImages()){
+				File f = new File(iSysImg.getLocation().getAbsoluteFile() + System.getProperty("file.separator") + "system.img");
+				FileUtils.copyFileToDirectory(f, avdPath);
+			}
 		}
-		String firstLocation = info.getTarget().getLocation() + "images" + System.getProperty("file.separator");
-		copyDirContentsToDir(firstLocation, avdPath);	
+
+		// Copy target system images to local directory
+		sysImages = info.getTarget().getSystemImages();
+		for(ISystemImage iSysImg : info.getTarget().getSystemImages()){
+			File f = new File(iSysImg.getLocation().getAbsoluteFile() + System.getProperty("file.separator") + "system.img");
+			FileUtils.copyFileToDirectory(f, avdPath);
+		}
+
+		// If system.img exists, it should be system-qemu.img (http://code.google.com/p/android/issues/detail?id=23684)
 		File sysImg = new File(avdPath + System.getProperty("file.separator") + "system.img");
-		sysImg.renameTo(new File(avdPath + System.getProperty("file.separator") + "system-qemu.img"));
+		if(sysImg.exists()){
+			sysImg.renameTo(new File(avdPath + System.getProperty("file.separator") + "system-qemu.img"));
+		}
 	}
 	
 	private static void copyDirContentsToDir(String firstDir, String destDir) throws IOException{
@@ -95,9 +115,16 @@ public class AvdWorkshop {
 		return(null);
 	}
 	
-	public static void launchAvd(String name) throws Exception{
-		String avdName = "@" + name;
-		BackgroundCommand c = new BackgroundCommand(new String[]{OterStatics.getEmulatorCommand(), "-partition-size", "128", avdName});
+	public static void launchAvd(AvdInfo avd) throws Exception{
+		String avdName = "@" + avd.getName();
+		BackgroundCommand c = new BackgroundCommand(new String[]{OterStatics.getEmulatorCommand(), "-partition-size", "1024", avdName});
+		c.execute();
+	}
+	
+	public static void launchPersistantAvd(AvdInfo avd) throws Exception{
+		String avdName = "@" + avd.getName();
+		String sysImage = avd.getDataFolderPath() + System.getProperty("file.separator") + "system-qemu.img";
+		BackgroundCommand c = new BackgroundCommand(new String[]{OterStatics.getEmulatorCommand(), "-system", sysImage,  "-partition-size", "1024", avdName});
 		c.execute();
 	}
 	
