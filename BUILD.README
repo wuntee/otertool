@@ -2,12 +2,4 @@ Building can be done via Maven:
 Prerequisite:
 You will need to locally install some libraries to Maven. There is a script in the lib directory to help.
 
-Linux/OSX:
-Replace the 'swt' directory in the pom.xml for the respective operating system.
-
-
-$ mvn clean package
-
-It will create an executable jar in the target directory (otertool-0.0.1-SNAPSHOT-jar-with-dependencies.jar).
-
-
+Look at the build-all.sh script.
