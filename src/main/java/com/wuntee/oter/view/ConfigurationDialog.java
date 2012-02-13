@@ -178,7 +178,7 @@ public class ConfigurationDialog extends Dialog {
 		lblJavaToSmali.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		lblJavaToSmali.setText("Java to Smali Classpath:");
 		
-		javaToSmaliClasspath = new List(composite_2, SWT.BORDER | SWT.V_SCROLL);
+		javaToSmaliClasspath = new List(composite_2, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		GridData gd_javaToSmaliClasspath = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_javaToSmaliClasspath.heightHint = 100;
 		javaToSmaliClasspath.setLayoutData(gd_javaToSmaliClasspath);

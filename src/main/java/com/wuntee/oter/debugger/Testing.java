@@ -1,16 +1,19 @@
 package com.wuntee.oter.debugger;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Bootstrap;
-import com.sun.jdi.LocalVariable;
-import com.sun.jdi.Method;
-import com.sun.jdi.ReferenceType;
+import com.sun.jdi.Location;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
+import com.sun.jdi.event.*;
+import com.sun.jdi.request.BreakpointRequest;
+import com.sun.jdi.request.EventRequestManager;
 import com.sun.tools.jdi.SocketAttachingConnector;
 
 public class Testing {
@@ -19,8 +22,10 @@ public class Testing {
 	 * @param args
 	 * @throws IllegalConnectorArgumentsException 
 	 * @throws IOException 
+	 * @throws InterruptedException 
 	 */
-	public static void main(String[] args) throws IOException, IllegalConnectorArgumentsException {
+	@SuppressWarnings("restriction")
+	public static void main(String[] args) throws IOException, IllegalConnectorArgumentsException, InterruptedException {
 		SocketAttachingConnector c = (SocketAttachingConnector)getConnector();
 		Map<String, Connector.Argument> arguments = c.defaultArguments();
 		
@@ -28,26 +33,35 @@ public class Testing {
 		hostnameArgument.setValue("127.0.0.1");
 		
 		Connector.Argument portArgument = arguments.get("port");
-		portArgument.setValue("8605");
+		portArgument.setValue("8607");
 		
 		arguments.put("hostname", hostnameArgument);
 		arguments.put("port", portArgument);
 
 		VirtualMachine vm = c.attach(arguments);
-		for(ReferenceType clas : vm.allClasses()){
-			if(!clas.name().startsWith("android.") && !clas.name().startsWith("com.android.")){
-				System.out.println(clas.name());
-				for(Method m : clas.allMethods()){
-					String mArgs = "(";
-					try{
-						for(LocalVariable arg : m.arguments()){
-							mArgs = mArgs + arg.type() + " " + arg.name() + ",";
-						}
-					} catch(Exception e){
-						mArgs = e.getMessage();
-					}
-					System.out.println(" -" + m.name() + mArgs + ")");
+		EventRequestManager mgr = vm.eventRequestManager();
+		
+		Location location = vm.classesByName("android.app.Activity").get(0).methodsByName("onCreate").get(0).location();
+		
+		BreakpointRequest bpr = mgr.createBreakpointRequest(location);
+		bpr.enable();
+		
+		while(true){
+			com.sun.jdi.event.EventQueue q = vm.eventQueue();
+			EventSet es = q.remove();
+			Iterator<com.sun.jdi.event.Event> it = es.iterator();
+			while(it.hasNext()){
+				BreakpointEvent e = (BreakpointEvent)it.next();
+				System.out.println(e.location());
+				System.out.println("Line number: " + e.location().lineNumber());
+				System.out.println("Code index: " + e.location().codeIndex());
+				try {
+					System.out.println("SourceName: " + e.location().sourceName());
+				} catch (AbsentInformationException e1) {
+					System.out.println("SourceName: UNAVAILABLE");
 				}
+				System.out.println("Declaration type: " + e.location().declaringType());
+				System.out.println("Method: " + e.location().method());				
 			}
 		}
 		
@@ -57,7 +71,6 @@ public class Testing {
 		List<Connector> connectors = Bootstrap.virtualMachineManager().allConnectors();
 		for(Connector c : connectors){
 			if(c.name().equals("com.sun.jdi.SocketAttach")){
-				System.out.println(c.getClass());
 				return(c);
 			}
 		}
