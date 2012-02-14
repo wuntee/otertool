@@ -5,10 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.Bootstrap;
-import com.sun.jdi.Location;
-import com.sun.jdi.VirtualMachine;
+import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.event.*;
@@ -23,9 +20,11 @@ public class Testing {
 	 * @throws IllegalConnectorArgumentsException 
 	 * @throws IOException 
 	 * @throws InterruptedException 
+	 * @throws IncompatibleThreadStateException 
+	 * @throws AbsentInformationException 
 	 */
 	@SuppressWarnings("restriction")
-	public static void main(String[] args) throws IOException, IllegalConnectorArgumentsException, InterruptedException {
+	public static void main(String[] args) throws IOException, IllegalConnectorArgumentsException, InterruptedException, IncompatibleThreadStateException, AbsentInformationException {
 		SocketAttachingConnector c = (SocketAttachingConnector)getConnector();
 		Map<String, Connector.Argument> arguments = c.defaultArguments();
 		
@@ -33,7 +32,7 @@ public class Testing {
 		hostnameArgument.setValue("127.0.0.1");
 		
 		Connector.Argument portArgument = arguments.get("port");
-		portArgument.setValue("8607");
+		portArgument.setValue("8615");
 		
 		arguments.put("hostname", hostnameArgument);
 		arguments.put("port", portArgument);
@@ -52,6 +51,7 @@ public class Testing {
 			Iterator<com.sun.jdi.event.Event> it = es.iterator();
 			while(it.hasNext()){
 				BreakpointEvent e = (BreakpointEvent)it.next();
+				
 				System.out.println(e.location());
 				System.out.println("Line number: " + e.location().lineNumber());
 				System.out.println("Code index: " + e.location().codeIndex());
@@ -61,7 +61,15 @@ public class Testing {
 					System.out.println("SourceName: UNAVAILABLE");
 				}
 				System.out.println("Declaration type: " + e.location().declaringType());
-				System.out.println("Method: " + e.location().method());				
+				System.out.println("Method: " + e.location().method());	
+				
+				System.out.println("Stack frames:");
+				for(StackFrame sf : e.thread().frames()){
+					System.out.println("\t" + sf.toString());
+					for(LocalVariable lv : sf.visibleVariables()){
+						System.out.println("\t\t" + lv);
+					}
+				}
 			}
 		}
 		
