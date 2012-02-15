@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.omg.CORBA.portable.ValueBase;
+
 import com.sun.jdi.*;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
@@ -32,15 +34,16 @@ public class Testing {
 		hostnameArgument.setValue("127.0.0.1");
 		
 		Connector.Argument portArgument = arguments.get("port");
-		portArgument.setValue("8615");
+		portArgument.setValue("8607");
 		
 		arguments.put("hostname", hostnameArgument);
 		arguments.put("port", portArgument);
 
 		VirtualMachine vm = c.attach(arguments);
 		EventRequestManager mgr = vm.eventRequestManager();
-		
-		Location location = vm.classesByName("android.app.Activity").get(0).methodsByName("onCreate").get(0).location();
+	
+		System.out.println(vm.classesByName("com.wuntee.securesslcomm").size());
+		Location location = vm.classesByName("com.wuntee.securesslcomm.SecureSSLCommunicationActivity").get(0).methodsByName("startTheActivity").get(0).location();
 		
 		BreakpointRequest bpr = mgr.createBreakpointRequest(location);
 		bpr.enable();
@@ -66,8 +69,23 @@ public class Testing {
 				System.out.println("Stack frames:");
 				for(StackFrame sf : e.thread().frames()){
 					System.out.println("\t" + sf.toString());
+					System.out.println("\t   Visible Variables:");
 					for(LocalVariable lv : sf.visibleVariables()){
-						System.out.println("\t\t" + lv);
+						System.out.println("\t\t--");
+						System.out.println("\t\tName: " + lv.name());
+						System.out.println("\t\tType: " + lv.typeName());
+						Value lvValue = sf.getValue(lv);
+						if(lvValue != null){
+							System.out.println("\t\tValue: " + lvValue);
+							System.out.println("\t\tValue Type:" + lvValue.type());
+							System.out.println("\t\ttoString: " + lv);
+						}
+					}
+					System.out.println("\t   Argument Values:");
+
+					for(Value lv : sf.getArgumentValues()){
+						System.out.println("\t\t--");
+						System.out.println("\t\t" + lv.toString());
 					}
 				}
 			}
