@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.wuntee.oter.OterStatics;
 import com.wuntee.oter.OterWorkshop;
+import com.wuntee.oter.adb.AdbWorkshop;
+
 import org.eclipse.swt.graphics.Point;
 
 public class ConfigurationDialog extends Dialog {
@@ -31,6 +33,7 @@ public class ConfigurationDialog extends Dialog {
 	private Text androidHomeText;
 	private List javaToSmaliClasspath;
 	private Text maxLogcatLinesText;
+	private List devicesList;
 
 	public ConfigurationDialog(Shell parent) {
 		this(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -65,6 +68,11 @@ public class ConfigurationDialog extends Dialog {
 	}
 	
 	private void loadConfig(){
+		// Load current devices
+		for(String d : AdbWorkshop.getDeviceList()){
+			devicesList.add(d);
+		}
+		
 		// Load Home
 		androidHomeText.setText(OterWorkshop.getProperty(OterStatics.PROPERTY_ANDROID_HOME) == null ? "" : OterWorkshop.getProperty(OterStatics.PROPERTY_ANDROID_HOME));
 		
@@ -80,7 +88,16 @@ public class ConfigurationDialog extends Dialog {
 				}
 			}
 		}
-
+		
+		// Load current device
+		String device = OterWorkshop.getProperty(OterStatics.PROPERTY_DEVICE);
+		if(device != null){
+			for(int i=0; i < devicesList.getItemCount(); i++){
+				if(devicesList.getItem(i).equals(device)){
+					devicesList.select(i);
+				}
+			}
+		}
 	}
 
 	/**
@@ -89,7 +106,7 @@ public class ConfigurationDialog extends Dialog {
 	private void createContents() {
 		shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE);
 		shell.setMinimumSize(new Point(450, 286));
-		shell.setSize(450, 286);
+		shell.setSize(450, 394);
 		shell.setText("Configuration");
 		GridLayout gl_shell = new GridLayout(1, false);
 		gl_shell.verticalSpacing = 0;
@@ -213,6 +230,26 @@ public class ConfigurationDialog extends Dialog {
 		});
 		btnRemove.setText("Remove");
 		
+		Composite composite_6 = new Composite(shell, SWT.NONE);
+		GridLayout gl_composite_6 = new GridLayout(1, false);
+		gl_composite_6.verticalSpacing = 0;
+		gl_composite_6.marginWidth = 0;
+		gl_composite_6.marginHeight = 0;
+		gl_composite_6.horizontalSpacing = 0;
+		composite_6.setLayout(gl_composite_6);
+		composite_6.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		
+		Label lblDevice = new Label(composite_6, SWT.NONE);
+		lblDevice.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		lblDevice.setBounds(0, 0, 59, 14);
+		lblDevice.setText("Device:");
+		
+		devicesList = new List(composite_6, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		GridData gd_list = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_list.heightHint = 75;
+		devicesList.setLayoutData(gd_list);
+		devicesList.setBounds(0, 0, 3, 66);
+		
 		Composite composite_1 = new Composite(shell, SWT.NONE);
 		composite_1.setLayoutData(new GridData(SWT.RIGHT, SWT.BOTTOM, false, true, 1, 1));
 		composite_1.setBounds(0, 0, 64, 64);
@@ -238,6 +275,11 @@ public class ConfigurationDialog extends Dialog {
 				
 				String max = maxLogcatLinesText.getText();
 				prop.setProperty(OterStatics.PROPERTY_LOGCAT_MAXLINES, max);
+				
+				String[] devices = devicesList.getSelection();
+				if(devices.length > 0){
+					prop.setProperty(OterStatics.PROPERTY_DEVICE, devices[0]);
+				}			
 				
 				try {
 					prop.store(new FileOutputStream(configFile), null);

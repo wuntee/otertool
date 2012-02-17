@@ -10,14 +10,14 @@ public class BackgroundAdbCommand extends BackgroundCommand {
 	private static Logger logger = Logger.getLogger(BackgroundAdbCommand.class);
 	
 	public BackgroundAdbCommand(String command) {
-		super(new String[]{OterStatics.getAdbCommand(), command});
+		super(new String[]{OterStatics.getAdbExecutable(), command});
 	}
 
 	public BackgroundAdbCommand(String command[]) {
 		super(command);
 		
 		String[] newCommand = new String[command.length+1];
-		newCommand[0] = OterStatics.getAdbCommand();
+		newCommand[0] = OterStatics.getAdbExecutable();
 		for(int i=0; i<command.length; i++){
 			newCommand[i+1] = command[i];
 		}

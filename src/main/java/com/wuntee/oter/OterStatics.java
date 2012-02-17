@@ -9,6 +9,7 @@ public class OterStatics {
 	public static String PROPERTY_ANDROID_HOME = "android.home";
 	public static String PROPERTY_LOGCAT_MAXLINES = "logcat.maxlines";
 	public static String PROPERTY_JAVATOSMALI_CLASSPATH = "javatosmali.classpath";
+	public static String PROPERTY_DEVICE = "device";
 	
 	public static String ICON_FILE = "/file_obj.gif";
 	public static String ICON_DIRECTORY = "/folder.gif";
@@ -37,7 +38,7 @@ public class OterStatics {
 		return(getAndroidHome() + System.getProperty("file.separator") + "tools" + System.getProperty("file.separator") + "emulator");
 	}
 	
-	public static String getAdbCommand(){
+	public static String getAdbExecutable(){
 		return(getAndroidHome() + System.getProperty("file.separator") + "platform-tools" + System.getProperty("file.separator") + "adb");
 	}
 	

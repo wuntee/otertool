@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import com.wuntee.oter.OterStatics;
+import com.wuntee.oter.OterWorkshop;
 import com.wuntee.oter.command.TerminatingCommand;
 import com.wuntee.oter.exception.AatException;
 import com.wuntee.oter.exception.CommandFailedException;
@@ -26,8 +27,29 @@ import com.wuntee.oter.packagemanager.PackageBean;
 public class AdbWorkshop {
 	private static Logger logger = Logger.getLogger(AdbWorkshop.class);
 	
+	public static List<String> getDeviceList(){
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"devices"});
+		List<String> ret = new LinkedList<String>();
+		try{
+			c.execute();
+			for(String l : c.getOutput()){
+				if(!l.startsWith("List of devices") && !l.trim().equals("")){
+					ret.add(l.trim().split("\\s")[0]);
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Could not get list of devices:", e);
+		}
+		
+		return(ret);
+	}
+	
+	public static TerminatingCommand getTerminatingAdbCommand(String[] args){
+		return(new TerminatingAdbCommand(args));
+	}
+	
 	public static boolean isConnected(){
-		TerminatingCommand c = new TerminatingCommand(new String[]{OterStatics.getAdbCommand(), "shell", "ls"});
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"shell", "ls"});
 		try {
 			int ret = c.execute();
 			if(ret == 0){
@@ -40,27 +62,26 @@ public class AdbWorkshop {
 	}
 	
 	public static void installApk(String apk) throws IOException, InterruptedException, CommandFailedException{
-		String[] cmd = new String[]{OterStatics.getAdbCommand(), "install", apk};
-		TerminatingCommand c = new TerminatingCommand(cmd);
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"install", apk});
 		c.execute();
 		for(String l : c.getOutput()){
 			// Error output: 
 			// Failure [INSTALL_FAILED_ALREADY_EXISTS]
 			if(l.matches(".*Failure.*")){
-				throw new CommandFailedException(cmd, c.getOutput(), l);
+				throw new CommandFailedException(c.getCommand(), c.getOutput(), l);
 			}
 		}
 	}
 	
 	public static void restartAdb() throws IOException, InterruptedException, CommandFailedException{
-		TerminatingCommand c = new TerminatingCommand(new String[]{OterStatics.getAdbCommand(), "kill-server"});
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"kill-server"});
 		c.execute();
-		c = new TerminatingCommand(new String[]{OterStatics.getAdbCommand(), "start-server"});
+		c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"start-server"});
 		c.execute();
 	}
 	
 	public static File pullFileTo(String remoteFile, String localFile) throws IOException, InterruptedException, CommandFailedException{
-		TerminatingCommand c = new TerminatingCommand(new String[]{OterStatics.getAdbCommand(), "pull", remoteFile, localFile});
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"pull", remoteFile, localFile});
 		c.execute();
 		return(new File(localFile));
 		
@@ -68,25 +89,25 @@ public class AdbWorkshop {
 	
 	public static File pullFile(String remoteFile) throws IOException, InterruptedException, CommandFailedException{
 		File tmpFile = AdbWorkshop.getTemporaryFile();
-		TerminatingCommand c = new TerminatingCommand(new String[]{OterStatics.getAdbCommand(), "pull", remoteFile, tmpFile.getAbsolutePath()});
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"pull", remoteFile, tmpFile.getAbsolutePath()});
 		c.execute();
 		return(tmpFile);
 	}
 	
 	public static File pushFile(File localFile, String remotePath) throws IOException, InterruptedException, CommandFailedException{
 		File tmpFile = AdbWorkshop.getTemporaryFile();
-		TerminatingCommand c = new TerminatingCommand(new String[]{OterStatics.getAdbCommand(), "push", localFile.getAbsolutePath(), remotePath});
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"push", localFile.getAbsolutePath(), remotePath});
 		c.execute();
 		return(tmpFile);
 	}
 	
 	public static void mountFilesystemReadWrite() throws IOException, InterruptedException, CommandFailedException, AatException {
-		TerminatingCommand c = new TerminatingCommand(new String[]{OterStatics.getAdbCommand(), "shell", "mount", "-o", "remount,rw", AdbWorkshop.findSystemDirectory(), "/system"});
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"shell", "mount", "-o", "remount,rw", AdbWorkshop.findSystemDirectory(), "/system"});
 		c.execute();
 	}
 	
 	public static void changeFilePermissions(String filename, String permissions) throws IOException, InterruptedException, CommandFailedException{
-		TerminatingCommand c = new TerminatingCommand(new String[]{OterStatics.getAdbCommand(), "shell", "chmod", permissions, filename});
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"shell", "chmod", permissions, filename});
 		c.execute();		
 	}
 	
@@ -110,12 +131,7 @@ public class AdbWorkshop {
 	}
 	
 	public static List<String> runAdbCommand(String[] cmd) throws IOException, InterruptedException, CommandFailedException{
-		String[] c = new String[cmd.length + 1];
-		c[0] = OterStatics.getAdbCommand();
-		for(int i=0; i<cmd.length; i++){
-			c[i+1] = cmd[i];
-		}
-		TerminatingCommand tc = new TerminatingCommand(c);
+		TerminatingCommand tc = AdbWorkshop.getTerminatingAdbCommand(cmd);
 		tc.execute();
 		
 		return(tc.getOutput());			
