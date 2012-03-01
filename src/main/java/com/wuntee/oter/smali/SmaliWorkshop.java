@@ -223,7 +223,7 @@ public class SmaliWorkshop {
 		//jarsigner -keystore somestore.ks modified-application.apk some-key-name -storepass
 		
 		
-		TerminatingCommand c = new TerminatingCommand(new String[]{"jarsigner", "-keystore", keystore, "-storepass", keystorePassword, jarFile, alias});
+		TerminatingCommand c = new TerminatingCommand(new String[]{"jarsigner", "-digestalg", "SHA1", "-sigalg", "MD5withRSA", "-keystore", keystore, "-storepass", keystorePassword, jarFile, alias});
 		int ret = c.execute();
 		if(ret != 0){
 			String output = "";
@@ -240,8 +240,8 @@ public class SmaliWorkshop {
 		
         int keysize = 1024;
         int validity = 10000;
-        String keyAlgName = "DSA";
-        String sigAlgName = "SHA1WithDSA";
+        String keyAlgName = "RSA";
+        String sigAlgName = "SHA1WithRSA";
 
         CertAndKeyGen keypair = new CertAndKeyGen(keyAlgName, sigAlgName, null);
 
