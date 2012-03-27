@@ -69,6 +69,7 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>org.eclipse.core.databinding</groupId>
 			<artifactId>beans</artifactId>
@@ -79,6 +80,7 @@
 			<artifactId>databinding</artifactId>
 			<version>1.1.0-I20070606-0010</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>com.android.prefs</groupId>
 			<artifactId>androidprefs</artifactId>

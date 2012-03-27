@@ -3,8 +3,6 @@ package com.wuntee.oter.view;
 import java.io.File;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.databinding.observable.Realm;
-import org.eclipse.jface.databinding.swt.SWTObservables;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -54,7 +52,7 @@ import com.wuntee.oter.logcat.LogCatController;
 import com.wuntee.oter.packagemanager.PackageBean;
 import com.wuntee.oter.packagemanager.PackageManagerController;
 import com.wuntee.oter.smali.SmaliController;
-import com.wuntee.oter.styler.*;
+import com.wuntee.oter.styler.SmaliLineStyler;
 import com.wuntee.oter.view.bean.BuildAndSignApkBean;
 import com.wuntee.oter.view.bean.CreateAvdBean;
 
@@ -109,6 +107,7 @@ public class Gui {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		/*
 		Display.setAppName("Otertool");
 		Display display = Display.getDefault();
 		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
@@ -121,6 +120,13 @@ public class Gui {
 				}
 			}
 		});
+		*/
+		try {
+			Gui window = new Gui();
+			window.open();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 	

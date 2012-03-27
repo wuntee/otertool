@@ -125,5 +125,16 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.1</version>
 		</dependency>
+				<dependency>
+			<groupId>com.android</groupId>
+			<artifactId>common</artifactId>
+			<version>r16</version>
+		</dependency>
+		<dependency>
+			<groupId>com.android.sdklib</groupId>
+			<artifactId>sdklib</artifactId>
+			<version>r16</version>
+			<type>jar</type>
+		</dependency>
 	</dependencies>
 </project>
