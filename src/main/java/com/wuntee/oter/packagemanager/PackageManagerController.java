@@ -1,41 +1,39 @@
 package com.wuntee.oter.packagemanager;
 
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.wuntee.oter.adb.AdbWorkshop;
+import com.wuntee.oter.exception.CommandFailedException;
 import com.wuntee.oter.fs.FsDiffController;
+import com.wuntee.oter.fs.FsNode;
+import com.wuntee.oter.fs.FsWorkshop;
 import com.wuntee.oter.view.Gui;
 import com.wuntee.oter.view.GuiWorkshop;
+import com.wuntee.oter.view.widgets.CTabItemWithDatabase;
+import com.wuntee.oter.view.widgets.CtabItemWithHexViewer;
+import com.wuntee.oter.view.widgets.runnable.FsListToTreeRunnable;
 
 public class PackageManagerController {
 	private static Logger logger = Logger.getLogger(FsDiffController.class);
 	private Gui gui;
 	
-	public static final String PACKAGE_BEAN = "packagebean";
-	public static final String[] ALL_KEYS = {PACKAGE_BEAN};
+	public static final String[] ALL_KEYS = {PackageBean.class.getName()};
 	
 	public PackageManagerController(Gui gui){
 		this.gui = gui;
 	}
 	
-	public void loadPackages(){
-		this.gui.getPackageManagerTable().removeAll();
-		this.gui.getPackageManagerStyledText().setText("");
-
-		Thread first = new Thread(new LoadPacakges());
-		first.start();
-	}
-	
 	public void pullPackages(String destinationDirectory){
 		String error = "";
-		for(TableItem tableItem : gui.getPackageManagerTable().getSelection()){
-			PackageBean bean = (PackageBean)tableItem.getData(PACKAGE_BEAN);
+		for(TableItem tableItem : gui.getApkTable().getTable().getSelection()){
+			PackageBean bean = (PackageBean)tableItem.getData(PackageBean.class.getName());
 			gui.setStatusBlocking("Pulling: " + bean.getClazz());
 			try {
 				File dst = new File(destinationDirectory, bean.getClazz() + ".apk");
@@ -72,13 +70,9 @@ public class PackageManagerController {
 		if(selected.length > 1){
 			this.gui.getPackageManagerStyledText().setText("Could not display details; multiple packages are selected.");
 		} else {
-			Thread load = new Thread(new LoadPackageDetails((PackageBean)selected[0].getData(PACKAGE_BEAN)));
+			Thread load = new Thread(new LoadPackageDetails((PackageBean)selected[0].getData(PackageBean.class.getName())));
 			load.start();
 		}
-	}
-	
-	public void loadPackagesInGui(List<PackageBean> list){
-		this.gui.runRunnableAsync(new LoadPackagesInGui(list));
 	}
 	
 	public void loadPackageDetailsInGui(String details){
@@ -115,36 +109,50 @@ public class PackageManagerController {
 			gui.getPackageManagerStyledText().setText(details);
 		}
 	}
-
 	
-	public class LoadPacakges implements Runnable{
-		public void run() {
-			gui.setStatus("Loading package list");
-			try{
-				loadPackagesInGui(AdbWorkshop.listPackages());
-				gui.clearStatus();
-			} catch(Exception e){
-				//GuiWorkshop.messageError(gui.getShell(), "Could not parse pacakges: " + e.getMessage());
-				gui.setStatus("There was an error parsing pacakges.");
-				logger.error("Error loading package list: ", e);
+	public void loadFileContentsToTab(FsNode node) throws IOException, InterruptedException, CommandFailedException, ClassNotFoundException, SQLException{
+		logger.debug("Node selected: " + node.getFullPath());
+		if(!node.isDirectory()){
+			gui.setStatus("Loading file " + node.getName());
+			File f = AdbWorkshop.pullFile(node.getFullPath());
+			// Try to load a database
+			if(node.getName().endsWith(".db")){
+				CTabItemWithDatabase item = new CTabItemWithDatabase(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
+				
+			} else {
+				//CTabItemWithStyledText a = new CTabItemWithStyledText(gui.getPackageManagerFilesTabs(), node.getName(), SWT.CLOSE);
+				//gui.runRunnableAsync(new FileToStyledTextRunnable(f, a.getStyledText()));
+				CtabItemWithHexViewer hexTab = new CtabItemWithHexViewer(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
 			}
-			
+			gui.clearStatus();
 		}
 	}
-	public class LoadPackagesInGui implements Runnable{
-		private Table table;
-		private List<PackageBean> list;
-		public LoadPackagesInGui(List<PackageBean> list){
-			this.table = gui.getPackageManagerTable();
-			this.list = list;
-		}
-		public void run() {
-			for(PackageBean bean : list){
-                TableItem tableItem = new TableItem(table, SWT.NONE);
-                tableItem.setText(new String[]{bean.getClazz()});
-                tableItem.setData(PACKAGE_BEAN, bean);
-			}			
+	
+	public void loadFilesTab(TableItem[] currentSelection) {
+		PackageBean sel = (PackageBean)currentSelection[0].getData(PackageBean.class.getName());
+		new Thread(new LoadFilesTabThread(sel)).start();
+	}
+	
+	public void loadFilesTabGui(List<FsNode> files){
+		this.gui.runRunnableAsync(new FsListToTreeRunnable(files, gui.getPackageManagerFilesTree()));
+	}
+	
+	public class LoadFilesTabThread implements Runnable{
+		private PackageBean packageBean;
+		public LoadFilesTabThread(PackageBean packageBean){
+			this.packageBean = packageBean;
 		}
 		
-	}	
+		@Override
+		public void run() {
+			try{
+				List<FsNode> files = FsWorkshop.getDirectoryRecursive("/data/data/" + packageBean.getClazz() + "/");
+				loadFilesTabGui(files);
+			} catch (Exception e){
+				logger.error("Could not get files:", e);
+			}
+		}
+	}
+	
+	
 }

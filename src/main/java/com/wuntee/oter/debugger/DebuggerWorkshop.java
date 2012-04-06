@@ -4,9 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.sun.jdi.Bootstrap;
-import com.sun.jdi.LocalVariable;
-import com.sun.jdi.Method;
-import com.sun.jdi.ReferenceType;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
@@ -14,6 +11,7 @@ import com.sun.tools.jdi.SocketAttachingConnector;
 
 public class DebuggerWorkshop {
 	
+	@SuppressWarnings({ "restriction", "unchecked" })
 	public VirtualMachine connectToRemoteVirtualMachine(String host, int port) throws IOException, IllegalConnectorArgumentsException{
 		SocketAttachingConnector c = (SocketAttachingConnector)getRemoteConnector();
 		Map<String, Connector.Argument> arguments = c.defaultArguments();
@@ -32,6 +30,7 @@ public class DebuggerWorkshop {
 		return(vm);
 	}
 	
+	@SuppressWarnings("restriction")
 	public static Connector getRemoteConnector(){
 		List<Connector> connectors = Bootstrap.virtualMachineManager().allConnectors();
 		for(Connector c : connectors){

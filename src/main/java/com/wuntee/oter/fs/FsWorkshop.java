@@ -13,12 +13,16 @@ import com.wuntee.oter.exception.CommandFailedException;
 public class FsWorkshop {
 	private static Logger logger = Logger.getLogger(FsNode.class);
 	
-	
-	
 	public static List<FsNode> getFilesystem() throws Exception{
 		AdbShell shell = new AdbShell();
 		shell.execute();
 		return(listDirectoryRecursive("/", shell));
+	}
+	
+	public static List<FsNode> getDirectoryRecursive(String directory) throws Exception{
+		AdbShell shell = new AdbShell();
+		shell.execute();
+		return(listDirectoryRecursive(directory, shell));
 	}
 	
 	private static List<FsNode> listDirectoryRecursive(String root, AdbShell shell) throws IOException, CommandFailedException{

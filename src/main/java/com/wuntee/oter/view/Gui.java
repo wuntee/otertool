@@ -47,14 +47,17 @@ import com.wuntee.oter.adb.AdbWorkshop;
 import com.wuntee.oter.avd.AvdController;
 import com.wuntee.oter.command.BackgroundCommand;
 import com.wuntee.oter.fs.FsDiffController;
+import com.wuntee.oter.fs.FsNode;
 import com.wuntee.oter.javatosmali.JavaToSmaliController;
 import com.wuntee.oter.logcat.LogCatController;
 import com.wuntee.oter.packagemanager.PackageBean;
 import com.wuntee.oter.packagemanager.PackageManagerController;
+import com.wuntee.oter.packagemanager.PackageManagerSelectionListener;
 import com.wuntee.oter.smali.SmaliController;
 import com.wuntee.oter.styler.SmaliLineStyler;
 import com.wuntee.oter.view.bean.BuildAndSignApkBean;
 import com.wuntee.oter.view.bean.CreateAvdBean;
+import com.wuntee.oter.view.widgets.ApkTable;
 
 public class Gui {
 
@@ -86,12 +89,17 @@ public class Gui {
 	private Table 				smaliSearchTable;
 	private Button 				smaliSearchIgnoreCase;
 	private Button 				smaliSearchRegex;
+	private CTabItem			smaliTabSearchTab; 
 
 	private AvdController 		avdController;
 	
 	private PackageManagerController	packageManagerController;
 	private StyledText 			packageManagerStyledText;
-	private Table 				packageManagerTable;
+	private ApkTable 			apkTable;
+	private CTabFolder 			packageManagerTabFolder;
+	private PackageManagerSelectionListener packageManagerSelectionListener;
+	private Tree 				packageManagerFilesTree; 
+	private CTabFolder 			packageManagerFilesTabs;
 	
 	private JavaToSmaliController	javaToSmaliController;
 	private StyledText				javaToSmaliSmaliStyledText;
@@ -107,20 +115,8 @@ public class Gui {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		/*
+
 		Display.setAppName("Otertool");
-		Display display = Display.getDefault();
-		Realm.runWithDefault(SWTObservables.getRealm(display), new Runnable() {
-			public void run() {
-				try {
-					Gui window = new Gui();
-					window.open();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		*/
 		try {
 			Gui window = new Gui();
 			window.open();
@@ -136,12 +132,13 @@ public class Gui {
 	public void open() {
 		this.display = Display.getDefault();
 		
+		createControllers();
+
 		createContents();
 
 		shlOterTool.open();
 		shlOterTool.layout();
 
-		createControllers();
 		loadConfig();
 
 		while (!shlOterTool.isDisposed()) {
@@ -152,12 +149,12 @@ public class Gui {
 	}
 
 	public void createControllers(){
-		logcatController = new LogCatController(this);
-		avdController = new AvdController(this);
-		fsDiffController = new FsDiffController(this);
-		smaliController = new SmaliController(this);
+		//logcatController = new LogCatController(this);
+		//avdController = new AvdController(this);
+		//fsDiffController = new FsDiffController(this);
+		//smaliController = new SmaliController(this);
 		packageManagerController = new PackageManagerController(this);
-		javaToSmaliController = new JavaToSmaliController(this);
+		//javaToSmaliController = new JavaToSmaliController(this);
 	}
 	
 	public void loadConfig(){
@@ -488,9 +485,16 @@ public class Gui {
 		tabFolder.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
+				// If no tab is selected
 				String selectedTab = tabFolder.getSelection().getText();
-				if(selectedTab.equals("Package Manager") && packageManagerTable.getItemCount() == 0){
-					packageManagerController.loadPackages();
+				if(selectedTab.equals("Package Manager")){
+					if(packageManagerTabFolder.getSelection() == null){
+						packageManagerTabFolder.setSelection(0);
+					}
+				} else if(selectedTab.equals("Smali") ){
+					if(smaliTabFolder.getSelection() == null){
+						smaliTabFolder.setSelection(0);
+					}
 				}
 			}
 		});
@@ -829,6 +833,8 @@ public class Gui {
 		SashForm sashForm_1 = new SashForm(composite_3, SWT.NONE);
 		
 		smaliTree = new Tree(sashForm_1, SWT.BORDER);
+		smaliTree.setLinesVisible(true);
+		smaliTree.setHeaderVisible(true);
 		smaliTree.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(MouseEvent arg0) {
@@ -853,11 +859,11 @@ public class Gui {
 		smaliTabFolder.setSimple(false);
 		smaliTabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
 		
-		CTabItem tbtmSearch = new CTabItem(smaliTabFolder, SWT.NONE);
-		tbtmSearch.setText("Search");
+		smaliTabSearchTab = new CTabItem(smaliTabFolder, SWT.NONE);
+		smaliTabSearchTab.setText("Search");
 		
 		Composite composite_9 = new Composite(smaliTabFolder, SWT.NONE);
-		tbtmSearch.setControl(composite_9);
+		smaliTabSearchTab.setControl(composite_9);
 		GridLayout gl_composite_9 = new GridLayout(1, false);
 		gl_composite_9.marginTop = 5;
 		gl_composite_9.verticalSpacing = 0;
@@ -971,30 +977,23 @@ public class Gui {
 		
 		SashForm packageManagerSashForm = new SashForm(composite_4, SWT.NONE);
 		
-		packageManagerTable = new Table(packageManagerSashForm, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
-		packageManagerTable.addSelectionListener(new SelectionAdapter() {
+		apkTable = new ApkTable(packageManagerSashForm, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
+		apkTable.getTable().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				packageManagerController.setPackageDetails(packageManagerTable.getSelection());
+				packageManagerSelectionListener.setCurrentSelection(apkTable.getTable().getSelection());
 			}
 		});
-		packageManagerTable.setHeaderVisible(true);
-		packageManagerTable.setLinesVisible(true);
-		
-		TableColumn tblclmnPackageName = new TableColumn(packageManagerTable, SWT.NONE);
-		tblclmnPackageName.setWidth(243);
-		tblclmnPackageName.setText("Package Name");
-		GuiWorkshop.addColumnSorter(packageManagerTable, tblclmnPackageName, 0, PackageManagerController.ALL_KEYS);
-		
-		Menu menu_5 = new Menu(packageManagerTable);
-		packageManagerTable.setMenu(menu_5);
+
+		Menu menu_5 = new Menu(apkTable.getTable());
+		apkTable.getTable().setMenu(menu_5);
 		
 		MenuItem mntmInstall = new MenuItem(menu_5, SWT.NONE);
 		mntmInstall.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				installApk();
-				packageManagerController.loadPackages();
+				apkTable.loadPackages();
 			}
 		});
 		mntmInstall.setText("Install APK");
@@ -1003,10 +1002,10 @@ public class Gui {
 		mntmUninstall.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				setStatus("UnInstalling package: " + packageManagerTable.getSelection()[0].getText(0));
-				packageManagerController.uninstallPackages(packageManagerTable.getSelection());
+				setStatus("UnInstalling package: " + apkTable.getTable().getSelection()[0].getText(0));
+				packageManagerController.uninstallPackages(apkTable.getTable().getSelection());
 				clearStatus();
-				packageManagerController.loadPackages();
+				apkTable.loadPackages();
 			}
 		});
 		mntmUninstall.setText("Uninstall Package(s)");
@@ -1029,13 +1028,92 @@ public class Gui {
 		mntmRefreshList.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				packageManagerController.loadPackages();
+				apkTable.loadPackages();
 			}
 		});
 		mntmRefreshList.setText("Refresh List");
 		
-		packageManagerStyledText = new StyledText(packageManagerSashForm, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL);
-		packageManagerSashForm.setWeights(new int[] {1, 3});
+		packageManagerSelectionListener = new PackageManagerSelectionListener(packageManagerController);
+		packageManagerTabFolder = new CTabFolder(packageManagerSashForm, SWT.BORDER | SWT.FLAT);
+		packageManagerTabFolder.addSelectionListener(packageManagerSelectionListener);
+		
+		packageManagerTabFolder.setSimple(false);
+		packageManagerTabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		
+		CTabItem tbtmAapt = new CTabItem(packageManagerTabFolder, SWT.NONE);
+		tbtmAapt.setText("Aapt");
+		
+		Composite composite_16 = new Composite(packageManagerTabFolder, SWT.NONE);
+		tbtmAapt.setControl(composite_16);
+		GridLayout gl_composite_16 = new GridLayout(1, false);
+		gl_composite_16.verticalSpacing = 0;
+		gl_composite_16.marginWidth = 0;
+		gl_composite_16.marginHeight = 0;
+		gl_composite_16.horizontalSpacing = 0;
+		composite_16.setLayout(gl_composite_16);
+		
+		packageManagerStyledText = new StyledText(composite_16, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL);
+		packageManagerStyledText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		CTabItem tbtmFiles = new CTabItem(packageManagerTabFolder, SWT.NONE);
+		tbtmFiles.setText("Files");
+		
+		SashForm sashForm_2 = new SashForm(packageManagerTabFolder, SWT.NONE);
+		tbtmFiles.setControl(sashForm_2);
+		
+		Composite composite_17 = new Composite(sashForm_2, SWT.NONE);
+		GridLayout gl_composite_17 = new GridLayout(1, false);
+		gl_composite_17.verticalSpacing = 0;
+		gl_composite_17.marginWidth = 0;
+		gl_composite_17.marginHeight = 0;
+		gl_composite_17.horizontalSpacing = 0;
+		composite_17.setLayout(gl_composite_17);
+		
+		packageManagerFilesTree = new Tree(composite_17, SWT.BORDER);
+		packageManagerFilesTree.setHeaderVisible(true);
+		packageManagerFilesTree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent arg0) {
+				try{
+					Tree tree = packageManagerFilesTree;
+					if(tree.getSelectionCount() == 1){
+						TreeItem[] items = tree.getSelection();
+						FsNode node = (FsNode)items[0].getData(FsNode.class.getName());
+						
+						for(CTabItem cti : packageManagerFilesTabs.getItems()){
+							if(cti.getText().equals(node.getName())){
+								packageManagerFilesTabs.setSelection(cti);
+								return;
+							}
+						}
+						
+						logger.debug("Selected item: " + node.toString());
+						packageManagerController.loadFileContentsToTab(node);
+					}
+				} catch (Exception e){
+					logger.error("Could not load file: ", e);
+				}
+			}
+		});
+
+		packageManagerFilesTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		Composite composite_18 = new Composite(sashForm_2, SWT.NONE);
+		GridLayout gl_composite_18 = new GridLayout(1, false);
+		gl_composite_18.verticalSpacing = 0;
+		gl_composite_18.marginWidth = 0;
+		gl_composite_18.marginHeight = 0;
+		gl_composite_18.horizontalSpacing = 0;
+		composite_18.setLayout(gl_composite_18);
+		
+		sashForm_2.setWeights(new int[] {197, 525});
+
+		packageManagerFilesTabs = new CTabFolder(composite_18, SWT.BORDER);
+		packageManagerFilesTabs.setSimple(false);
+		packageManagerFilesTabs.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		packageManagerFilesTabs.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		packageManagerSashForm.setWeights(new int[] {1, 2});
+		
+
 		FormData fd_statusLabel = new FormData();
 		fd_statusLabel.bottom = new FormAttachment(100, -2);
 		fd_statusLabel.left = new FormAttachment(tabFolder, 0, SWT.LEFT);
@@ -1207,11 +1285,10 @@ public class Gui {
 	public StyledText getPackageManagerStyledText() {
 		return packageManagerStyledText;
 	}
-
-	public Table getPackageManagerTable() {
-		return packageManagerTable;
+	public ApkTable getApkTable() {
+		return apkTable;
 	}
-
+	
 	public Text getSmaliSearchText() {
 		return smaliSearchText;
 	}
@@ -1226,5 +1303,17 @@ public class Gui {
 
 	public Button getSmaliSearchRegex() {
 		return smaliSearchRegex;
+	}
+
+	public Tree getPackageManagerFilesTree() {
+		return packageManagerFilesTree;
+	}
+
+	public CTabFolder getPackageManagerFilesTabs() {
+		return packageManagerFilesTabs;
+	}
+
+	public CTabItem getSmaliTabSearchTab() {
+		return smaliTabSearchTab;
 	}
 }

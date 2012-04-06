@@ -1,8 +1,6 @@
 package com.wuntee.oter.view;
 
-import java.text.Collator;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
@@ -16,8 +14,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;

@@ -43,7 +43,7 @@ public class Testing {
 		hostnameArgument.setValue("127.0.0.1");
 		
 		Connector.Argument portArgument = arguments.get("port");
-		portArgument.setValue("8605");
+		portArgument.setValue("8601");
 		
 		arguments.put("hostname", hostnameArgument);
 		arguments.put("port", portArgument);
@@ -53,15 +53,26 @@ public class Testing {
 	
 		//System.out.println(vm.classesByName("com.wuntee.securesslcomm").size());
 		//Location location = vm.classesByName("com.wuntee.securesslcomm.SecureSSLCommunicationActivity").get(0).methodsByName("startTheActivity").get(0).location();
-		for(Method m : vm.classesByName("android.content.Intent").get(0).methodsByName("<init>")){
+		
+		for(com.sun.jdi.ReferenceType rt: vm.allClasses()){
+			for(Method m: rt.allMethods()){
+				if(m.name().contains("cache")){
+					addBreakpointToMethod(m, mgr);
+
+				}
+			}
+		}
+		
+
+/*		for(Method m : vm.classesByName("android.content.Intent").get(0).methodsByName("<init>")){
 			System.out.println("Breakpoint: " + m.toString());
 			
 			Location location = m.location(); 
 			BreakpointRequest bpr = mgr.createBreakpointRequest(location);
 			bpr.enable();
-		}
+		}*/
 		
-		addIntentBreakpoints(vm);
+		//addIntentBreakpoints(vm);
 		
 		com.sun.jdi.event.EventQueue q = vm.eventQueue();
 		
@@ -95,6 +106,16 @@ public class Testing {
 		
 	}
 	
+	public static void addBreakpointToMethod(Method m, EventRequestManager mgr){
+		System.out.println("Breakpoint: " + m.toString());
+		try{
+			Location location = m.location(); 
+			BreakpointRequest bpr = mgr.createBreakpointRequest(location);
+			bpr.enable();
+		} catch (com.sun.jdi.NativeMethodException e){
+			System.out.println("Error: Cant add breakpoint to native method (" + m.toString() + ")");
+		}
+	}
 	
 	public static void printBreakpointData(BreakpointEvent e) throws IncompatibleThreadStateException, AbsentInformationException{
 		

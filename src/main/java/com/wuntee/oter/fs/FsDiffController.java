@@ -14,6 +14,7 @@ import com.wuntee.oter.OterStatics;
 import com.wuntee.oter.adb.AdbShell;
 import com.wuntee.oter.exception.CommandFailedException;
 import com.wuntee.oter.view.Gui;
+import com.wuntee.oter.view.widgets.runnable.FsListToTreeRunnable;
 
 public class FsDiffController {
 	private static Logger logger = Logger.getLogger(FsDiffController.class);
@@ -212,43 +213,7 @@ public class FsDiffController {
 	}
 	
 	private void setFsToTree(List<FsNode> fs, Tree tree){
-		this.gui.getDisplay().asyncExec(new ListToTreeRunnable(fs, tree));
-	}
-	public class ListToTreeRunnable implements Runnable{
-		private List<FsNode> fs;
-		private Tree tree;
-		public ListToTreeRunnable(List<FsNode> fs, Tree tree){
-			this.fs = fs;
-			this.tree = tree;
-		}
-		public void run() {
-			for(FsNode node : fs){
-				TreeItem trtmTest = new TreeItem(tree, SWT.NONE);
-				if(node.isLink())
-					trtmTest.setText(node.getName() + " -> " + node.getLink());
-				else
-					trtmTest.setText(node.getName());
-				if(node.isDirectory()){
-					addDirectory(trtmTest, node);
-					trtmTest.setImage(SWTResourceManager.getImage(Gui.class, OterStatics.ICON_DIRECTORY));
-				} else{
-					trtmTest.setImage(SWTResourceManager.getImage(Gui.class, OterStatics.ICON_FILE));
-				}
-			}
-		}
-		
-		private void addDirectory(TreeItem ti, FsNode node){
-			for(FsNode child : node.getChildren()){
-				TreeItem trtmTest = new TreeItem(ti, SWT.NONE);
-				trtmTest.setText(child.getName());
-				if(child.isDirectory()){
-					trtmTest.setImage(SWTResourceManager.getImage(Gui.class, OterStatics.ICON_DIRECTORY));
-					addDirectory(trtmTest, child);
-				} else {
-					trtmTest.setImage(SWTResourceManager.getImage(Gui.class, OterStatics.ICON_FILE));
-				}
-			}
-		}
+		this.gui.getDisplay().asyncExec(new FsListToTreeRunnable(fs, tree));
 	}
 
 	public class FirstFsScanRunnable implements Runnable{

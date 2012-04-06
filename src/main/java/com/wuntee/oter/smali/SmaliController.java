@@ -40,6 +40,7 @@ import com.wuntee.oter.view.FindDialog;
 import com.wuntee.oter.view.Gui;
 import com.wuntee.oter.view.GuiWorkshop;
 import com.wuntee.oter.view.bean.BuildAndSignApkBean;
+import com.wuntee.oter.view.widgets.CTabItemWithStyledText;
 
 public class SmaliController {
 	private static Logger logger = Logger.getLogger(SmaliController.class);
@@ -54,7 +55,6 @@ public class SmaliController {
 	public static final String NAME = "name";
 	public static final String PACKAGE = "package";
 	public static final String MODIFIED = "modified";
-	public static final String STYLED_TEXT = "styledtext";
 	public static final String ORIGINAL_TEXT = "originaltext";
 	
 	private Gui gui;
@@ -177,7 +177,7 @@ public class SmaliController {
 			logger.debug("Saving file: " + file);
 			
 			BufferedWriter out = new BufferedWriter(new FileWriter(file));
-			StyledText styledText = (StyledText)tab.getData(STYLED_TEXT);
+			StyledText styledText = (StyledText)tab.getData(StyledText.class.getName());
 			out.write(styledText.getText());
 			out.flush();
 			out.close();
@@ -283,7 +283,7 @@ public class SmaliController {
 		for(CTabItem tab : gui.getSmaliTabFolder().getItems()){
 			if(tab.getShowClose() == true){
 				if(((String)tab.getData(CLASS)).equals(classPath)){
-					return((StyledText)tab.getData(STYLED_TEXT));
+					return((StyledText)tab.getData(StyledText.class.getName()));
 				}
 			}
 		}
@@ -336,24 +336,16 @@ public class SmaliController {
 					}
 					
 					// Create tab, and add text
-					CTabItem tabItem = new CTabItem(smaliTabFolder, SWT.CLOSE);
-					
-					tabItem.setText(name);
-					
-					StyledText styledText = new StyledText(smaliTabFolder, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-					styledText.setEditable(true);
-					styledText.addLineStyleListener(new SmaliLineStyler());
-					tabItem.setControl(styledText);
-					
-					smaliTabFolder.setSelection(tabItem);
+					CTabItemWithStyledText tabItem = new CTabItemWithStyledText(smaliTabFolder, name, SWT.CLOSE);
+					tabItem.getStyledText().addLineStyleListener(new SmaliLineStyler());
 
-					styledText.setText(buf);
+					tabItem.getStyledText().setText(buf);
 					
-					styledText.addModifyListener(new ModifyListener(){
+					tabItem.getStyledText().addModifyListener(new ModifyListener(){
 						public void modifyText(ModifyEvent arg0) {
 							for(CTabItem tab : gui.getSmaliTabFolder().getItems()){
 								if(tab.getShowClose() == true){
-									StyledText styledText = ((StyledText)tab.getData(STYLED_TEXT));
+									StyledText styledText = ((StyledText)tab.getData(StyledText.class.getName()));
 									if( styledText == arg0.getSource() ){
 										if((Boolean)tab.getData(MODIFIED) == false){
 											tab.setData(MODIFIED, true);
@@ -370,18 +362,17 @@ public class SmaliController {
 						}
 					});
 
-					addTextMenu(styledText);
+					addTextMenu(tabItem.getStyledText());
 					
 					if(this.line > -1){
-						styledText.setTopIndex(this.line);
+						tabItem.getStyledText().setTopIndex(this.line);
 					}
 
 					// Initialize data
-					tabItem.setData(ORIGINAL_TEXT, buf);
-					tabItem.setData(MODIFIED, false);
-					tabItem.setData(STYLED_TEXT, styledText);
-					tabItem.setData(CLASS, full);
-					tabItem.setData(FILENAME, source.getAbsolutePath());
+					tabItem.getcTabItem().setData(ORIGINAL_TEXT, buf);
+					tabItem.getcTabItem().setData(MODIFIED, false);
+					tabItem.getcTabItem().setData(CLASS, full);
+					tabItem.getcTabItem().setData(FILENAME, source.getAbsolutePath());
 					
 				} catch (Exception e) {
 					gui.messageError("Could not open load smali: " + e.getMessage());
@@ -536,7 +527,7 @@ public class SmaliController {
 	private CTabItem getOpenSmaliTabByStyledText(StyledText item){
 		for(CTabItem tab : gui.getSmaliTabFolder().getItems()){
 			if(tab.getShowClose() == true){
-				if(((StyledText)tab.getData(STYLED_TEXT)).equals(item)){
+				if(((StyledText)tab.getData(StyledText.class.getName())).equals(item)){
 					return(tab);
 				}
 			}
