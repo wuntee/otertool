@@ -1092,11 +1092,70 @@ public class Gui {
 					}
 				} catch (Exception e){
 					logger.error("Could not load file: ", e);
+					GuiWorkshop.messageDialog(shlOterTool, "Could not load file: " + e.getMessage());
 				}
 			}
 		});
 
 		packageManagerFilesTree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		
+		Menu menu_9 = new Menu(packageManagerFilesTree);
+		packageManagerFilesTree.setMenu(menu_9);
+		
+		MenuItem mntmSqlite = new MenuItem(menu_9, SWT.NONE);
+		mntmSqlite.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				if(packageManagerFilesTree.getSelectionCount() == 1){
+					try{
+						TreeItem[] items = packageManagerFilesTree.getSelection();
+						FsNode node = (FsNode)items[0].getData(FsNode.class.getName());
+						packageManagerController.loadFileContentsToSQLiteTab(node);
+					} catch (Exception e){
+						logger.error("Could not load file: ", e);
+						GuiWorkshop.messageDialog(shlOterTool, "Could not load file: " + e.getMessage());
+					}
+				}
+			}
+		});
+		mntmSqlite.setText("SQLite view");
+		
+		MenuItem mntmHexView = new MenuItem(menu_9, SWT.NONE);
+		mntmHexView.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				if(packageManagerFilesTree.getSelectionCount() == 1){
+					try{
+						TreeItem[] items = packageManagerFilesTree.getSelection();
+						FsNode node = (FsNode)items[0].getData(FsNode.class.getName());
+						packageManagerController.loadFileContentsToHexTab(node);
+					} catch (Exception e){
+						logger.error("Could not load file: ", e);
+						GuiWorkshop.messageDialog(shlOterTool, "Could not load file: " + e.getMessage());
+					}
+				}
+			}
+		});
+		mntmHexView.setText("Hex view");
+		
+		MenuItem mntmTextView = new MenuItem(menu_9, SWT.NONE);
+		mntmTextView.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				if(packageManagerFilesTree.getSelectionCount() == 1){
+					try{
+						TreeItem[] items = packageManagerFilesTree.getSelection();
+						FsNode node = (FsNode)items[0].getData(FsNode.class.getName());
+						packageManagerController.loadFileContentsToTextTab(node);
+					} catch (Exception e){
+						logger.error("Could not load file: ", e);
+						GuiWorkshop.messageDialog(shlOterTool, "Could not load file: " + e.getMessage());
+					}
+				}
+			}
+		});
+		mntmTextView.setText("Text view");
+		
 		Composite composite_18 = new Composite(sashForm_2, SWT.NONE);
 		GridLayout gl_composite_18 = new GridLayout(1, false);
 		gl_composite_18.verticalSpacing = 0;

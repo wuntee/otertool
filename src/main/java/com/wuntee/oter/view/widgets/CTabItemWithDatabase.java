@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
 import com.wuntee.oter.sqlite.SqliteHelper;
+import com.wuntee.oter.view.GuiWorkshop;
 
 public class CTabItemWithDatabase {
 	private static Logger logger = Logger.getLogger(CTabItemWithDatabase.class);
@@ -109,6 +110,8 @@ public class CTabItemWithDatabase {
 					}
 				} catch (Exception e){
 					logger.error("Could not load tables: ", e);
+					cTabItem.dispose();
+					GuiWorkshop.messageError(parent.getShell(), "Could not load database: " + e.getMessage());
 				}
 			}
 			

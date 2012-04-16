@@ -1,6 +1,5 @@
 package com.wuntee.oter.view.widgets;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -12,8 +11,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
 import com.wuntee.oter.adb.AdbWorkshop;
-import com.wuntee.oter.exception.CommandFailedException;
-import com.wuntee.oter.exception.ParseException;
 import com.wuntee.oter.packagemanager.PackageBean;
 import com.wuntee.oter.view.GuiWorkshop;
 
@@ -57,7 +54,6 @@ public class ApkTable {
 					loadPackagesGui(packageBeans);
 				} catch (Exception e) {
 					logger.error("Error loading packages:" ,e);
-					GuiWorkshop.messageError(table.getShell(), "There was an error loading the packages: " + e.getMessage());
 				}				
 			}
 		}).start();

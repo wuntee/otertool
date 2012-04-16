@@ -17,7 +17,9 @@ import com.wuntee.oter.fs.FsWorkshop;
 import com.wuntee.oter.view.Gui;
 import com.wuntee.oter.view.GuiWorkshop;
 import com.wuntee.oter.view.widgets.CTabItemWithDatabase;
-import com.wuntee.oter.view.widgets.CtabItemWithHexViewer;
+import com.wuntee.oter.view.widgets.CTabItemWithHexViewer;
+import com.wuntee.oter.view.widgets.CTabItemWithStyledText;
+import com.wuntee.oter.view.widgets.runnable.FileToStyledTextRunnable;
 import com.wuntee.oter.view.widgets.runnable.FsListToTreeRunnable;
 
 public class PackageManagerController {
@@ -118,14 +120,36 @@ public class PackageManagerController {
 			// Try to load a database
 			if(node.getName().endsWith(".db")){
 				CTabItemWithDatabase item = new CTabItemWithDatabase(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
-				
+			} else if(node.getName().endsWith(".xml") || node.getName().endsWith(".txt")){
+				CTabItemWithStyledText a = new CTabItemWithStyledText(gui.getPackageManagerFilesTabs(), node.getName(), SWT.CLOSE);
+				gui.runRunnableAsync(new FileToStyledTextRunnable(f, a.getStyledText()));				
 			} else {
-				//CTabItemWithStyledText a = new CTabItemWithStyledText(gui.getPackageManagerFilesTabs(), node.getName(), SWT.CLOSE);
-				//gui.runRunnableAsync(new FileToStyledTextRunnable(f, a.getStyledText()));
-				CtabItemWithHexViewer hexTab = new CtabItemWithHexViewer(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
+				CTabItemWithHexViewer hexTab = new CTabItemWithHexViewer(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
 			}
 			gui.clearStatus();
 		}
+	}
+	
+	public void loadFileContentsToSQLiteTab(FsNode node) throws ClassNotFoundException, SQLException, IOException, InterruptedException, CommandFailedException{
+		gui.setStatus("Loading file " + node.getName());
+		File f = AdbWorkshop.pullFile(node.getFullPath());
+		CTabItemWithDatabase item = new CTabItemWithDatabase(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
+		gui.clearStatus();
+	}
+	
+	public void loadFileContentsToTextTab(FsNode node) throws IOException, InterruptedException, CommandFailedException{
+		gui.setStatus("Loading file " + node.getName());
+		File f = AdbWorkshop.pullFile(node.getFullPath());
+		CTabItemWithStyledText a = new CTabItemWithStyledText(gui.getPackageManagerFilesTabs(), node.getName(), SWT.CLOSE);
+		gui.runRunnableAsync(new FileToStyledTextRunnable(f, a.getStyledText()));
+		gui.clearStatus();		
+	}
+	
+	public void loadFileContentsToHexTab(FsNode node) throws IOException, InterruptedException, CommandFailedException{
+		gui.setStatus("Loading file " + node.getName());
+		File f = AdbWorkshop.pullFile(node.getFullPath());
+		CTabItemWithHexViewer hexTab = new CTabItemWithHexViewer(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
+		gui.clearStatus();				
 	}
 	
 	public void loadFilesTab(TableItem[] currentSelection) {
