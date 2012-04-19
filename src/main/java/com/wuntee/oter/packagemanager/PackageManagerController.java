@@ -56,7 +56,8 @@ public class PackageManagerController {
 	public void uninstallPackages(TableItem[] selected){
 		String msg = "The following packages have been uninstalled: ";
 		for(TableItem t : selected){
-			String packageClazz = t.getText(0);
+            PackageBean bean = (PackageBean) t.getData(PackageBean.class.getName());
+			String packageClazz = bean.getClazz();
 			try{
 				AdbWorkshop.uninstallPackage(packageClazz);
 				msg = msg + "\n\t" + packageClazz;

@@ -43,7 +43,7 @@ public class Testing {
 		hostnameArgument.setValue("127.0.0.1");
 		
 		Connector.Argument portArgument = arguments.get("port");
-		portArgument.setValue("8601");
+		portArgument.setValue("8603");
 		
 		arguments.put("hostname", hostnameArgument);
 		arguments.put("port", portArgument);
@@ -55,10 +55,13 @@ public class Testing {
 		//Location location = vm.classesByName("com.wuntee.securesslcomm.SecureSSLCommunicationActivity").get(0).methodsByName("startTheActivity").get(0).location();
 		
 		for(com.sun.jdi.ReferenceType rt: vm.allClasses()){
-			for(Method m: rt.allMethods()){
-				if(m.name().contains("cache")){
-					addBreakpointToMethod(m, mgr);
-
+			if(rt.name().toLowerCase().contains("wuntee")){
+				System.out.println(rt.name());
+				for(Method m: rt.allMethods()){
+					System.out.println(" -" + m.name());
+					if(m.name().contains("cache")){
+						addBreakpointToMethod(m, mgr);
+					}
 				}
 			}
 		}
@@ -81,7 +84,7 @@ public class Testing {
 			Iterator<com.sun.jdi.event.Event> it = es.iterator();
 			while(it.hasNext()){
 				com.sun.jdi.event.Event e = it.next();
-				//if(e.)
+				
 				BreakpointEvent bpe = (BreakpointEvent)e;
 				//printBreakpointData(bpe);
 				
