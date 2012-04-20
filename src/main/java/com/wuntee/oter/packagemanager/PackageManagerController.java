@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.TableItem;
 
+import com.wuntee.oter.aapt.androidmanifest.AndroidManifestObject;
+import com.wuntee.oter.aapt.androidmanifest.AndroidManifestWorkshop;
 import com.wuntee.oter.adb.AdbWorkshop;
 import com.wuntee.oter.exception.CommandFailedException;
 import com.wuntee.oter.fs.FsDiffController;
@@ -69,50 +71,6 @@ public class PackageManagerController {
 		GuiWorkshop.messageDialog(gui.getShell(), msg);
 	}
 	
-	public void setPackageDetails(TableItem[] selected){
-		if(selected.length > 1){
-			this.gui.getPackageManagerStyledText().setText("Could not display details; multiple packages are selected.");
-		} else {
-			Thread load = new Thread(new LoadPackageDetails((PackageBean)selected[0].getData(PackageBean.class.getName())));
-			load.start();
-		}
-	}
-	
-	public void loadPackageDetailsInGui(String details){
-		this.gui.runRunnableAsync(new LoadPackageDetaisInGui(details));
-	}
-	
-	public class LoadPackageDetails implements Runnable{
-		private PackageBean itemBean;
-		public LoadPackageDetails(PackageBean itemBean){
-			this.itemBean = itemBean;
-		}
-		public void run() {
-			gui.setStatus("Loading package details: " + itemBean.getClazz());
-			try{
-				StringBuffer buf = new StringBuffer();
-				for(String s : PackageManagerWorkshop.getDetailedPackageInfo(itemBean)){
-					buf.append(s).append("\n");
-				}
-				loadPackageDetailsInGui(buf.toString());
-				
-			} catch(Exception e){
-				gui.getPackageManagerStyledText().setText("Could not get package details: " + e.getMessage());
-				logger.error("Could not get package details: ", e);
-			}
-			gui.clearStatus();
-		}		
-	}
-	public class LoadPackageDetaisInGui implements Runnable{
-		String details;
-		public LoadPackageDetaisInGui(String details){
-			this.details = details;
-		}
-		public void run() {
-			gui.getPackageManagerStyledText().setText(details);
-		}
-	}
-	
 	public void loadFileContentsToTab(FsNode node) throws IOException, InterruptedException, CommandFailedException, ClassNotFoundException, SQLException{
 		logger.debug("Node selected: " + node.getFullPath());
 		if(!node.isDirectory()){
@@ -152,31 +110,85 @@ public class PackageManagerController {
 		CTabItemWithHexViewer hexTab = new CTabItemWithHexViewer(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
 		gui.clearStatus();				
 	}
-	
-	public void loadFilesTab(TableItem[] currentSelection) {
-		PackageBean sel = (PackageBean)currentSelection[0].getData(PackageBean.class.getName());
-		new Thread(new LoadFilesTabThread(sel)).start();
-	}
-	
-	public void loadFilesTabGui(List<FsNode> files){
-		this.gui.runRunnableAsync(new FsListToTreeRunnable(files, gui.getPackageManagerFilesTree()));
-	}
-	
-	public class LoadFilesTabThread implements Runnable{
-		private PackageBean packageBean;
-		public LoadFilesTabThread(PackageBean packageBean){
-			this.packageBean = packageBean;
-		}
+
+	public void loadPackageDetails(TableItem[] selection) {
 		
-		@Override
-		public void run() {
-			try{
-				List<FsNode> files = FsWorkshop.getDirectoryRecursive("/data/data/" + packageBean.getClazz() + "/");
-				loadFilesTabGui(files);
-			} catch (Exception e){
-				logger.error("Could not get files:", e);
-			}
+		if(selection.length > 1) {
+			return;
 		}
+
+		TableItem item = selection[0];
+		final PackageBean bean = (PackageBean)item.getData(PackageBean.class.getName());
+		logger.info("Loading package details for: " + bean.getApk());
+		gui.setStatus("Loading package details for: " + bean.getApk());
+		
+		// Load file details
+		Thread details = new Thread(new Runnable(){
+			@Override
+			public void run() {
+					// Pull file
+					File apk = null;
+					try {
+						apk = AdbWorkshop.pullFile(bean.getApk());
+					} catch (Exception e) {
+						logger.error("Could not pull apk from device: ", e);
+						GuiWorkshop.messageErrorThreaded(gui, "Could not pull apk from device: " + e.getMessage());
+					}
+					if(apk != null){
+						// Manifest
+						try {
+							final AndroidManifestObject root = AndroidManifestWorkshop.getAndroidManifestObjectsForApk(apk);
+							gui.runRunnableAsync(new Runnable(){
+								@Override
+								public void run() {
+									// Load data in gui
+									gui.getPackageManagerAndroidManifestTab().loadAndroidManifestObjects(root);
+								}
+							});
+								
+						} catch (Exception e) {
+							logger.error("Could not parse the AndroidManifest.xml file: ", e);
+							GuiWorkshop.messageErrorThreaded(gui, "Could not parse the AndroidManifest.xml file: " + e.getMessage());
+						}
+						// AAPT
+						List<String> details = null;
+						try {
+							details = PackageManagerWorkshop.getDetailedPackageInfo(apk);
+						} catch (Exception e) {
+							logger.error("Could not get detailed package information: ", e);
+							GuiWorkshop.messageErrorThreaded(gui, "Could not get detailed package information: " + e.getMessage());
+						}
+						final StringBuffer sb = new StringBuffer();
+						if(details != null){
+							for(String det : details){
+								sb.append(det).append("\n");
+							}
+						}
+						gui.runRunnableAsync(new Runnable(){
+							@Override
+							public void run() {
+								// Load data in gui
+								gui.getPackageManagerStyledText().setText(sb.toString());
+							}
+						});
+					}
+					// Files
+					List<FsNode> files = null;
+					try {
+						files = FsWorkshop.getDirectoryRecursive("/data/data/" + bean.getClazz() + "/");
+					} catch (Exception e) {
+						logger.error("Could not get file listing: ", e);
+						GuiWorkshop.messageErrorThreaded(gui, "Could not get file listing: " + e.getMessage());
+					}
+					if(files != null){
+						gui.runRunnableAsync(new FsListToTreeRunnable(files, gui.getPackageManagerFilesTree()));
+					}
+					
+					gui.clearStatus();
+			}
+		});
+		details.start();
+				
 	}
 	
 	

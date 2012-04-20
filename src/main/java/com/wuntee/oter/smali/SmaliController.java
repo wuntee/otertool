@@ -369,10 +369,10 @@ public class SmaliController {
 					}
 
 					// Initialize data
-					tabItem.getcTabItem().setData(ORIGINAL_TEXT, buf);
-					tabItem.getcTabItem().setData(MODIFIED, false);
-					tabItem.getcTabItem().setData(CLASS, full);
-					tabItem.getcTabItem().setData(FILENAME, source.getAbsolutePath());
+					tabItem.setData(ORIGINAL_TEXT, buf);
+					tabItem.setData(MODIFIED, false);
+					tabItem.setData(CLASS, full);
+					tabItem.setData(FILENAME, source.getAbsolutePath());
 					
 				} catch (Exception e) {
 					gui.messageError("Could not open load smali: " + e.getMessage());

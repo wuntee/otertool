@@ -5,29 +5,26 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
 
-public class CTabItemWithStyledText{
-	private CTabItem cTabItem;
+public class CTabItemWithStyledText extends CTabItem{
 	private StyledText styledText;
 
 	public CTabItemWithStyledText(CTabFolder parent, String name, int style) {
-		this.cTabItem = new CTabItem(parent, style);
-		this.cTabItem.setText(name);
+		this(parent, style);
+		this.setText(name);
+	}
+	
+	public CTabItemWithStyledText(CTabFolder parent, int style) {
+		super(parent, style);
 		this.styledText = new StyledText(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-		this.cTabItem.setData(StyledText.class.getName(), this.styledText);
+		this.setData(StyledText.class.getName(), this.styledText);
 		this.styledText.setEditable(true);
-		this.cTabItem.setControl(this.styledText);
-		parent.setSelection(cTabItem);
+		this.setControl(this.styledText);
+		parent.setSelection(this);
 	}
 	public StyledText getStyledText() {
 		return styledText;
 	}
 	public void setStyledText(StyledText styledText) {
 		this.styledText = styledText;
-	}
-	public CTabItem getcTabItem() {
-		return cTabItem;
-	}
-	public void setcTabItem(CTabItem cTabItem) {
-		this.cTabItem = cTabItem;
 	}
 }

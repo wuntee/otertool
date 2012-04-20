@@ -52,12 +52,12 @@ import com.wuntee.oter.javatosmali.JavaToSmaliController;
 import com.wuntee.oter.logcat.LogCatController;
 import com.wuntee.oter.packagemanager.PackageBean;
 import com.wuntee.oter.packagemanager.PackageManagerController;
-import com.wuntee.oter.packagemanager.PackageManagerSelectionListener;
 import com.wuntee.oter.smali.SmaliController;
 import com.wuntee.oter.styler.SmaliLineStyler;
 import com.wuntee.oter.view.bean.BuildAndSignApkBean;
 import com.wuntee.oter.view.bean.CreateAvdBean;
 import com.wuntee.oter.view.widgets.ApkTable;
+import com.wuntee.oter.view.widgets.CTabItemWithTreeForAndroidManifest;
 
 public class Gui {
 
@@ -97,9 +97,9 @@ public class Gui {
 	private StyledText 			packageManagerStyledText;
 	private ApkTable 			apkTable;
 	private CTabFolder 			packageManagerTabFolder;
-	private PackageManagerSelectionListener packageManagerSelectionListener;
 	private Tree 				packageManagerFilesTree; 
 	private CTabFolder 			packageManagerFilesTabs;
+	private CTabItemWithTreeForAndroidManifest packageManagerAndroidManifestTab;
 	
 	private JavaToSmaliController	javaToSmaliController;
 	private StyledText				javaToSmaliSmaliStyledText;
@@ -149,12 +149,12 @@ public class Gui {
 	}
 
 	public void createControllers(){
-		logcatController = new LogCatController(this);
-		avdController = new AvdController(this);
-		fsDiffController = new FsDiffController(this);
-		smaliController = new SmaliController(this);
+		//logcatController = new LogCatController(this);
+		//avdController = new AvdController(this);
+		//fsDiffController = new FsDiffController(this);
+		//smaliController = new SmaliController(this);
 		packageManagerController = new PackageManagerController(this);
-		javaToSmaliController = new JavaToSmaliController(this);
+		//javaToSmaliController = new JavaToSmaliController(this);
 	}
 	
 	public void loadConfig(){
@@ -490,6 +490,9 @@ public class Gui {
 				if(selectedTab.equals("Package Manager")){
 					if(packageManagerTabFolder.getSelection() == null){
 						packageManagerTabFolder.setSelection(0);
+					}
+					if(apkTable.getTable().getItemCount() == 0){
+						apkTable.loadPackages();
 					}
 				} else if(selectedTab.equals("Smali") ){
 					if(smaliTabFolder.getSelection() == null){
@@ -981,7 +984,8 @@ public class Gui {
 		apkTable.getTable().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				packageManagerSelectionListener.setCurrentSelection(apkTable.getTable().getSelection());
+				logger.debug(apkTable.getTable().getSelection().length);
+				packageManagerController.loadPackageDetails(apkTable.getTable().getSelection());
 			}
 		});
 
@@ -1033,9 +1037,7 @@ public class Gui {
 		});
 		mntmRefreshList.setText("Refresh List");
 		
-		packageManagerSelectionListener = new PackageManagerSelectionListener(packageManagerController);
 		packageManagerTabFolder = new CTabFolder(packageManagerSashForm, SWT.BORDER | SWT.FLAT);
-		packageManagerTabFolder.addSelectionListener(packageManagerSelectionListener);
 		
 		packageManagerTabFolder.setSimple(false);
 		packageManagerTabFolder.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
@@ -1170,6 +1172,10 @@ public class Gui {
 		packageManagerFilesTabs.setSimple(false);
 		packageManagerFilesTabs.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
 		packageManagerFilesTabs.setSelectionBackground(Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
+		
+		packageManagerAndroidManifestTab = new CTabItemWithTreeForAndroidManifest(packageManagerTabFolder, SWT.NONE);
+		packageManagerAndroidManifestTab.setText("AndroidManifest");
+		
 		packageManagerSashForm.setWeights(new int[] {1, 2});
 		
 
@@ -1375,4 +1381,9 @@ public class Gui {
 	public CTabItem getSmaliTabSearchTab() {
 		return smaliTabSearchTab;
 	}
+
+	public CTabItemWithTreeForAndroidManifest getPackageManagerAndroidManifestTab() {
+		return packageManagerAndroidManifestTab;
+	}
+	
 }

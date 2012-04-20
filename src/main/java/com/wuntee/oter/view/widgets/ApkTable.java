@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import com.wuntee.oter.adb.AdbWorkshop;
 import com.wuntee.oter.packagemanager.PackageBean;
+import com.wuntee.oter.view.Gui;
 import com.wuntee.oter.view.GuiWorkshop;
 
 public class ApkTable {
@@ -41,9 +42,7 @@ public class ApkTable {
 		
 		final String[] keys = {PackageBean.class.getName()};
 		GuiWorkshop.addColumnSorter(table, tblclmnApk, 0, keys);
-		GuiWorkshop.addColumnSorter(table, tblclmnPackage, 1, keys);
-		
-		loadPackages();
+		GuiWorkshop.addColumnSorter(table, tblclmnPackage, 1, keys);		
 	}
 	
 	public void loadPackages(){

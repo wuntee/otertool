@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import com.wuntee.oter.OterStatics;
-import com.wuntee.oter.OterWorkshop;
 import com.wuntee.oter.command.TerminatingCommand;
 import com.wuntee.oter.exception.AatException;
 import com.wuntee.oter.exception.CommandFailedException;

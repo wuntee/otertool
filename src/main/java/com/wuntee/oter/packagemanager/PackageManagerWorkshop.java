@@ -14,18 +14,13 @@ import com.wuntee.oter.exception.CommandFailedException;
 public class PackageManagerWorkshop {
 	private static Logger logger = Logger.getLogger(AdbWorkshop.class);
 
-	public static List<String> getDetailedPackageInfo(PackageBean pkg) throws IOException, InterruptedException, CommandFailedException{
-		logger.debug("Running aapt on " + pkg);
-		
-		// Pull apk
-		File apk = AdbWorkshop.pullFile(pkg.getApk());
+	public static List<String> getDetailedPackageInfo(File apk) throws IOException, InterruptedException, CommandFailedException{
+		logger.debug("Running aapt on " + apk);
 		
 		// Run: aapt l -a [apk]
 		TerminatingCommand cmd = new TerminatingCommand(new String[]{OterStatics.getAaptCommand(), "l", "-a", apk.getAbsolutePath()});
 		int r = cmd.executeNoErrorMonitor();
 		logger.debug("Command returned: " + r);
-		
-		apk.delete();
 		
 		return(cmd.getOutput());
 	}

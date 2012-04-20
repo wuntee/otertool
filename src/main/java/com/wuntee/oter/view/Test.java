@@ -28,13 +28,15 @@ import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.events.DragDetectListener;
 import org.eclipse.swt.events.DragDetectEvent;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class Test {
-	private StyledText counter;
-	private StyledText hexContent;
-	private StyledText binContent;
 
 	protected Shell shell;
+	private Tree tree;
+	private TreeItem trtmTestTreeItem;
+	private TreeItem trtmNewTreeitem;
 
 	/**
 	 * Launch the application.
@@ -81,38 +83,14 @@ public class Test {
 		CTabItem tabItem = new CTabItem(tabFolder, SWT.NONE);
 		tabItem.setText("New Item");
 		
-		Composite composite = new Composite(tabFolder, SWT.NONE);
-		tabItem.setControl(composite);
-		GridLayout gl_composite = new GridLayout(4, false);
-		gl_composite.marginWidth = 0;
-		gl_composite.verticalSpacing = 0;
-		gl_composite.marginHeight = 0;
-		gl_composite.horizontalSpacing = 0;
-		composite.setLayout(gl_composite);
+		tree = new Tree(tabFolder, SWT.BORDER);
+		tabItem.setControl(tree);
 		
-		counter = new StyledText(composite, SWT.BORDER | SWT.READ_ONLY | SWT.WRAP);
-		counter.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true, 1, 1));
-		counter.setFont(SWTResourceManager.getFont("Courier New", 11, SWT.NORMAL));
-
-		hexContent = new StyledText(composite, SWT.BORDER | SWT.READ_ONLY | SWT.V_SCROLL | SWT.WRAP);
-		hexContent.addDragDetectListener(new DragDetectListener() {
-			public void dragDetected(DragDetectEvent arg0) {
-			}
-		});
-		hexContent.addCaretListener(new CaretListener() {
-			public void caretMoved(CaretEvent arg0) {
-			}
-		});
-		hexContent.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDown(MouseEvent arg0) {
-			}
-		});
-		hexContent.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-		hexContent.setFont(SWTResourceManager.getFont("Courier New", 11, SWT.NORMAL));
-
-		binContent = new StyledText(composite, SWT.BORDER | SWT.READ_ONLY );
-		binContent.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, true, 1, 1));
-		binContent.setFont(SWTResourceManager.getFont("Courier New", 11, SWT.NORMAL));
+		trtmTestTreeItem = new TreeItem(tree, SWT.NONE);
+		trtmTestTreeItem.setText("test tree item");
+		
+		trtmNewTreeitem = new TreeItem(trtmTestTreeItem, SWT.NONE);
+		trtmNewTreeitem.setText("New TreeItem");
+		trtmTestTreeItem.setExpanded(true);
 	}
 }
