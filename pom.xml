@@ -4,7 +4,7 @@
 
 	<groupId>com.wuntee</groupId>
 	<artifactId>otertool</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>otertool</name>
@@ -88,12 +88,12 @@
 		</dependency>
 		<dependency>
 			<groupId>antlr</groupId>
-			<artifactId>smali</artifactId>
+			<artifactId>baksmali</artifactId>
 			<version>1.2.6</version>
 		</dependency>
 		<dependency>
 			<groupId>antlr</groupId>
-			<artifactId>baksmali</artifactId>
+			<artifactId>smali</artifactId>
 			<version>1.2.6</version>
 		</dependency>
 		<!-- Uncomment to build for OSX -->
@@ -131,6 +131,18 @@
 			<groupId>com.android.sdklib</groupId>
 			<artifactId>sdklib</artifactId>
 			<version>r16</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>com.android.ddms</groupId>
+			<artifactId>ddms</artifactId>
+			<version>r17</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>com.android.ddmlib</groupId>
+			<artifactId>ddmlib</artifactId>
+			<version>r17</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>

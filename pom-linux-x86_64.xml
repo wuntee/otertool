@@ -4,7 +4,7 @@
 
 	<groupId>com.wuntee</groupId>
 	<artifactId>otertool</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>otertool</name>
@@ -69,6 +69,7 @@
 			<artifactId>log4j</artifactId>
 			<version>1.2.14</version>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>org.eclipse.core.databinding</groupId>
 			<artifactId>beans</artifactId>
@@ -79,6 +80,7 @@
 			<artifactId>databinding</artifactId>
 			<version>1.1.0-I20070606-0010</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>com.android.prefs</groupId>
 			<artifactId>androidprefs</artifactId>
@@ -86,18 +88,13 @@
 		</dependency>
 		<dependency>
 			<groupId>antlr</groupId>
-			<artifactId>smali</artifactId>
-			<version>1.2.6</version>
-		</dependency>
-		<dependency>
-			<groupId>antlr</groupId>
 			<artifactId>baksmali</artifactId>
 			<version>1.2.6</version>
 		</dependency>
 		<dependency>
-			<groupId>com.android.sdklib</groupId>
-			<artifactId>sdklib</artifactId>
-			<version>r16</version>
+			<groupId>antlr</groupId>
+			<artifactId>smali</artifactId>
+			<version>1.2.6</version>
 		</dependency>
 		<!-- Uncomment to build for OSX 
 		<dependency>
@@ -119,13 +116,14 @@
 			<artifactId>swt</artifactId>
 			<version>3.7-gtk-linux-64</version>
 		</dependency>
+		
 
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.1</version>
 		</dependency>
-				<dependency>
+		<dependency>
 			<groupId>com.android</groupId>
 			<artifactId>common</artifactId>
 			<version>r16</version>
@@ -136,11 +134,22 @@
 			<version>r16</version>
 			<type>jar</type>
 		</dependency>
-				<dependency>
+		<dependency>
+			<groupId>com.android.ddms</groupId>
+			<artifactId>ddms</artifactId>
+			<version>r17</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>com.android.ddmlib</groupId>
+			<artifactId>ddmlib</artifactId>
+			<version>r17</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
 			<version>3.7.2</version>
 		</dependency>
-		
 	</dependencies>
 </project>

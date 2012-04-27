@@ -3,12 +3,7 @@ General:
 - Android 4
 - Crash monitor
 
-Logcat
-- Configurable buffer
-- Figure out why its so slow
-
 FSDiff:
-- Require root shell, or do not error on FSdiff if you dont have root
 - Ability to monitor files to view specific diff
 
 Smali:
