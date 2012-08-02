@@ -35,7 +35,11 @@ public class AvdWorkshop {
 		
 		IAndroidTarget target = getAndroidTargetFromString(sdkManager, bean.getTarget());
 
-		String abiType = target.getSystemImages()[0].getAbiType(); //ABI = Android Base Image ?
+		ISystemImage[] abiTypes = target.getSystemImages();
+		if(abiTypes.length == 0){
+			throw new GenericException("There are no images associated with the target.");
+		}
+		String abiType = abiTypes[0].getAbiType(); //ABI = Android Base Image ?
 		
 		// /Applications/android-sdk-macosx/system-images/android-15/armeabi-v7a//system.img
 		// avdManager.           createAvd(avdFolder, avdName,     avdTarget, ABI, skin, sdCard, hadwareConfig, snapshot, force, false, logger)

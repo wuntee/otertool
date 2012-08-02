@@ -105,7 +105,7 @@ public class ConfigurationDialog extends Dialog {
 	 */
 	private void createContents() {
 		shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.RESIZE);
-		shell.setMinimumSize(new Point(450, 286));
+		shell.setMinimumSize(new Point(450, 394));
 		shell.setSize(450, 394);
 		shell.setText("Configuration");
 		GridLayout gl_shell = new GridLayout(1, false);
