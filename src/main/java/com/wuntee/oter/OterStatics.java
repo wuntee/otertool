@@ -17,7 +17,7 @@ public class OterStatics {
 	public static String ICON_APP = "/otertool.gif";
 	
 	public static String[] BAD_DIRECTORIES = new String[]{"/dev/", "/acct/uid/", "/proc/", "/cache/", "/sys/", "/system/lost+found/"};
-	public static String[] ADB_SHELLS = new String[]{"$ ", "# "};
+	public static String[] ADB_SHELLS = new String[]{".*\\$ $", ".*# $"};
 	public static String ADB_ROOT_SHELL = "# ";
 	
 	public static String ANDROID_CERT_FILE = "/system/etc/security/cacerts.bks";

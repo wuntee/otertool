@@ -65,7 +65,6 @@ public class CTabItemWithDatabase {
 	
 	public void loadTableData(final String tableName){
 		parent.getDisplay().asyncExec(new Runnable(){
-			@Override
 			public void run() {
 				try{
 					contentsTable.removeAll();
@@ -99,7 +98,6 @@ public class CTabItemWithDatabase {
 	
 	public void loadTables(){
 		parent.getDisplay().asyncExec(new Runnable(){
-			@Override
 			public void run() {
 				try{
 					List<String> tables = db.getTables();

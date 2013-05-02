@@ -71,7 +71,7 @@ public class PackageManagerController {
 		GuiWorkshop.messageDialog(gui.getShell(), msg);
 	}
 	
-	public void loadFileContentsToTab(FsNode node) throws IOException, InterruptedException, CommandFailedException, ClassNotFoundException, SQLException{
+	public void loadFileContentsToTab(FsNode node) throws Exception{
 		logger.debug("Node selected: " + node.getFullPath());
 		if(!node.isDirectory()){
 			gui.setStatus("Loading file " + node.getName());
@@ -89,14 +89,14 @@ public class PackageManagerController {
 		}
 	}
 	
-	public void loadFileContentsToSQLiteTab(FsNode node) throws ClassNotFoundException, SQLException, IOException, InterruptedException, CommandFailedException{
+	public void loadFileContentsToSQLiteTab(FsNode node) throws Exception{
 		gui.setStatus("Loading file " + node.getName());
 		File f = AdbWorkshop.pullFile(node.getFullPath());
 		CTabItemWithDatabase item = new CTabItemWithDatabase(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
 		gui.clearStatus();
 	}
 	
-	public void loadFileContentsToTextTab(FsNode node) throws IOException, InterruptedException, CommandFailedException{
+	public void loadFileContentsToTextTab(FsNode node) throws Exception{
 		gui.setStatus("Loading file " + node.getName());
 		File f = AdbWorkshop.pullFile(node.getFullPath());
 		CTabItemWithStyledText a = new CTabItemWithStyledText(gui.getPackageManagerFilesTabs(), node.getName(), SWT.CLOSE);
@@ -104,11 +104,17 @@ public class PackageManagerController {
 		gui.clearStatus();		
 	}
 	
-	public void loadFileContentsToHexTab(FsNode node) throws IOException, InterruptedException, CommandFailedException{
+	public void loadFileContentsToHexTab(FsNode node) throws Exception{
 		gui.setStatus("Loading file " + node.getName());
 		File f = AdbWorkshop.pullFile(node.getFullPath());
 		CTabItemWithHexViewer hexTab = new CTabItemWithHexViewer(gui.getPackageManagerFilesTabs(), node.getName(), f, SWT.CLOSE);
 		gui.clearStatus();				
+	}
+	
+	public void saveFileAs(FsNode node, String filename) throws Exception {
+		gui.setStatus("Saving file " + node.getName());
+		File f = AdbWorkshop.pullFileTo(node.getFullPath(), filename);
+		gui.clearStatus();
 	}
 
 	public void loadPackageDetails(TableItem[] selection) {
@@ -124,7 +130,6 @@ public class PackageManagerController {
 		
 		// Load file details
 		Thread details = new Thread(new Runnable(){
-			@Override
 			public void run() {
 					// Pull file
 					File apk = null;
@@ -139,7 +144,6 @@ public class PackageManagerController {
 						try {
 							final AndroidManifestObject root = AndroidManifestWorkshop.getAndroidManifestObjectsForApk(apk);
 							gui.runRunnableAsync(new Runnable(){
-								@Override
 								public void run() {
 									// Load data in gui
 									gui.getPackageManagerAndroidManifestTab().loadAndroidManifestObjects(root);
@@ -165,7 +169,6 @@ public class PackageManagerController {
 							}
 						}
 						gui.runRunnableAsync(new Runnable(){
-							@Override
 							public void run() {
 								// Load data in gui
 								gui.getPackageManagerStyledText().setText(sb.toString());
@@ -190,6 +193,6 @@ public class PackageManagerController {
 		details.start();
 				
 	}
-	
+
 	
 }

@@ -18,14 +18,20 @@ public class AdbShell extends BackgroundAdbCommand {
 	
 	private static Logger logger = Logger.getLogger(AdbShell.class);
 	
-	private String prompt;
+	private String prompt = "";
 	
 	public AdbShell() {
 		super("shell");
 	}
 	
-	public boolean isRootShell(){
-		return(prompt.equals(OterStatics.ADB_ROOT_SHELL));
+	public boolean isRootShell() throws IOException, CommandFailedException{
+		List<String> ret = sendCommand("/system/bin/id");
+		if(ret.size() > 0){
+			if(ret.get(0).startsWith("uid=0")){
+				return(true);
+			}
+		}
+		return(false);
 	}
 	
 	public int start() throws Exception{
@@ -40,7 +46,12 @@ public class AdbShell extends BackgroundAdbCommand {
 		return(0);
 	}
 	
-	private List<String> waitForNewPrompt() throws IOException{
+	private void setPrompt(String prompt) throws IOException, CommandFailedException{
+		this.prompt = prompt;
+		sendCommand("export PS1='" + prompt + "'");
+	}
+	
+	private List<String> waitForNewPrompt() throws IOException, CommandFailedException{
 		// Gallaxy shell = "shell@android:/ $ "
 		List<String> ret = new LinkedList<String>();
 
@@ -59,15 +70,18 @@ public class AdbShell extends BackgroundAdbCommand {
 		}
 		//ret = ret.subList(1, ret.size());
 		
-		this.prompt = line;
-		logger.debug("Prompt: '" + line + "'");
+		//this.prompt = line;
+		setPrompt("$ ");
+		
+		logger.debug("Prompt: '" + this.prompt + "'");
 		
 		return(ret);
 	}
 	
 	private boolean isPrompt(String line){
 		for(String prompt : OterStatics.ADB_SHELLS){
-			if(line.equals(prompt)){
+			//System.out.println("Line: " + line + " Prompt: " + prompt + " : " + (line.matches(prompt)));
+			if(line.matches(prompt)){
 				return(true);
 			}
 		}

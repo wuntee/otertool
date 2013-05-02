@@ -1,4 +1,8 @@
 Release notes
+0.0.5
+- File listing should work on all devices how. Commands set the prompt via 'export PS1' 
+- Copying and pulling files is done via cat as to not run into exceptions when trying to move between different mount points
+- Save file in the package manager file viewer right click options
 
 0.0.3
 - Configuration dialog min hight bug fixed

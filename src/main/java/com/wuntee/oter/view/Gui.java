@@ -1158,6 +1158,26 @@ public class Gui {
 		});
 		mntmTextView.setText("Text view");
 		
+		MenuItem mntmSaveFileView = new MenuItem(menu_9, SWT.NONE);
+		mntmSaveFileView.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				if(packageManagerFilesTree.getSelectionCount() == 1){
+					try{
+						TreeItem[] items = packageManagerFilesTree.getSelection();
+						FsNode node = (FsNode)items[0].getData(FsNode.class.getName());
+						String file = GuiWorkshop.selectSaveFile(shlOterTool, new String[]{});
+						packageManagerController.saveFileAs(node, file);
+						GuiWorkshop.messageDialog(shlOterTool, "Your file has been saved.");
+					} catch (Exception e){
+						logger.error("Could not load file: ", e);
+						GuiWorkshop.messageDialog(shlOterTool, "Could not save file: " + e.getMessage());
+					}
+				}
+			}
+		});
+		mntmSaveFileView.setText("Save File...");
+		
 		Composite composite_18 = new Composite(sashForm_2, SWT.NONE);
 		GridLayout gl_composite_18 = new GridLayout(1, false);
 		gl_composite_18.verticalSpacing = 0;

@@ -134,13 +134,11 @@ public class CTabItemWithHexViewer {
 			}
 		});
 		txt.addSelectionListener(new SelectionListener() {
-			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 				binContent.setTopIndex(txt.getTopIndex());
 				hexContent.setTopIndex(txt.getTopIndex());
 				counter.setTopIndex(txt.getTopIndex());
 			}
-			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				binContent.setTopIndex(txt.getTopIndex());
 				hexContent.setTopIndex(txt.getTopIndex());
@@ -183,7 +181,6 @@ public class CTabItemWithHexViewer {
 		ScrollBar vbar = txt.getVerticalBar();
 		if(vbar != null){
 			vbar.addListener(SWT.Selection, new Listener(){
-				@Override
 				public void handleEvent(Event arg0) {
 					binContent.setTopIndex(txt.getTopIndex());
 					hexContent.setTopIndex(txt.getTopIndex());

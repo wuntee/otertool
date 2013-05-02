@@ -60,7 +60,6 @@ public class ApkTable {
 	
 	private void loadPackagesGui(List<PackageBean> packages){
 		table.getDisplay().asyncExec(new Runnable(){
-			@Override
 			public void run() {
 				table.removeAll();
 				

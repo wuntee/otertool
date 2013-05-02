@@ -79,20 +79,37 @@ public class AdbWorkshop {
 		c.execute();
 	}
 	
-	public static File pullFileTo(String remoteFile, String localFile) throws IOException, InterruptedException, CommandFailedException{
+	public static File pullFileTo(String remoteFile, String localFile) throws Exception{
+		/* This wont work for files owned by root, unless you have a default root shell
 		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"pull", remoteFile, localFile});
 		c.execute();
 		return(new File(localFile));
+		*/
+		AdbShell shell = new AdbShell();
+		shell.execute();
+		try{
+			shell.getRootShell();
+		} catch(Exception e) {
+			// Would be nice, but not necessisary.
+			logger.debug("Could not get root shell: " + e.getMessage());
+		}
 		
-	}
-	
-	public static File pullFile(String remoteFile) throws IOException, InterruptedException, CommandFailedException{
-		File tmpFile = AdbWorkshop.getTemporaryFile();
-		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"pull", remoteFile, tmpFile.getAbsolutePath()});
+		String baseTmpDir = "/data/local/tmp/";
+		String tmpFileName = remoteFile.substring(remoteFile.lastIndexOf("/") + 1);
+		String tmpFile = baseTmpDir + tmpFileName; 
+		shell.sendCommand("cat '" + remoteFile + "' > '" + tmpFile + "'");
+		shell.sendCommand("chmod 666 '" + tmpFile + "'");
+		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"pull", tmpFile, localFile});
 		c.execute();
-		return(tmpFile);
+		shell.sendCommand("rm '" + tmpFile + "'");
+		return(new File(localFile));		
 	}
 	
+	public static File pullFile(String remoteFile) throws Exception{
+		File tmpFile = AdbWorkshop.getTemporaryFile();
+		return(pullFileTo(remoteFile, tmpFile.getAbsolutePath()));
+	}
+		
 	public static File pushFile(File localFile, String remotePath) throws IOException, InterruptedException, CommandFailedException{
 		File tmpFile = AdbWorkshop.getTemporaryFile();
 		TerminatingCommand c = AdbWorkshop.getTerminatingAdbCommand(new String[]{"push", localFile.getAbsolutePath(), remotePath});

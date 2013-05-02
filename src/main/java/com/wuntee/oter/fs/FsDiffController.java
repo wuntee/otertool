@@ -183,7 +183,7 @@ public class FsDiffController {
 	
 	public List<FsNode> getFilesystem() throws Exception{
 		AdbShell shell = new AdbShell();
-		shell.execute();
+		shell.start();
 		shell.getRootShell();
 		return(listDirectoryRecursive("/", shell));
 	}

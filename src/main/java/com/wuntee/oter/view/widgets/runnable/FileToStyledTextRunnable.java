@@ -17,7 +17,6 @@ public class FileToStyledTextRunnable implements Runnable {
 		this.styledText = styledText;
 	}
 
-	@Override
 	public void run() {
 		logger.debug("Loading file into styled text (" + f.getAbsolutePath() + ")");
 		try{

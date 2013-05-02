@@ -20,8 +20,13 @@ public class FsWorkshop {
 	}
 	
 	public static List<FsNode> getDirectoryRecursive(String directory) throws Exception{
-		AdbShell shell = new AdbShell();
+		AdbShell shell = new AdbShell();		
 		shell.execute();
+		try{
+			shell.getRootShell();
+		} catch(Exception e){
+			// Ignore
+		}
 		return(listDirectoryRecursive(directory, shell));
 	}
 	
